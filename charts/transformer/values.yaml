@@ -6,6 +6,7 @@ replicaCount: 1
 
 image:
   repository: lokikargo/transformer
+  version: v3
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -34,7 +35,7 @@ securityContext:
 
 service:
   type: ClusterIP
-  port: 80
+  port: 9090
 
 ingress:
   enabled: false
@@ -62,6 +63,11 @@ resources:
   # requests:
   #   cpu: 100m
   #   memory: 128Mi
+extraEnvVars:
+  - name: CONFIG_BACKEND_URL
+    value: "https://api.rudderlabs.com"
+  - name: ENABLE_FUNCTIONS
+    value: "false"
 
 nodeSelector: {}
 
