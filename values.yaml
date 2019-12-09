@@ -5,7 +5,8 @@
 replicaCount: 1
 
 image:
-  repository: nginx
+  repository: lokikargo/backend
+  version: v2
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -19,10 +20,12 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name:
 
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # fsGroup: 2000
 
-securityContext: {}
+securityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL
@@ -31,23 +34,44 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: ClusterIP
-  port: 80
+  type: NodePort
+  port: 8080
 
 ingress:
-  enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
+  enabled: true
+  annotations:
+    {}
+    # kubernetes.io/ingress.class: postgres
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: chart-example.local
-      paths: []
+    - host: kubes.dev.rudderlabs.com
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
 
-resources: {}
+postgresql:
+  enabled: true
+  postgresqlPostgresPassword: "password"
+  postgresqlUsername: "rudder"
+  postgresqlPassword: "password"
+  postgresqlDatabase: "jobsdb"
+
+  imagePullPolicy: IfNotPresent
+
+  persistence:
+    enabled: true
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    storageClass: ""
+    accessMode: ReadWriteOnce
+    size: 10Gi
+resources:
+  {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -61,6 +85,50 @@ resources: {}
 
 nodeSelector: {}
 
+persistence:
+  enabled: true
+  mountPath: /bitnami/rudder
+
+  ## The subdirectory of the volume to mount to, useful in dev environments
+  ## and one PV for multiple services.
+  ##
+  subPath: ""
+
+  # storageClass: "-"
+  accessModes:
+    - ReadWriteOnce
+  size: 8Gi
+  annotations: {}
 tolerations: []
+
+extraEnvVars:
+  - name: USER_TRANSFORM_URL
+    value: "http://u-transformer:9292"
+  - name: DEST_TRANSFORM_URL
+    value: "http://backend3-transformer:9090/"
+  - name: TEST_SINK_URL
+    value: "http://test-sink:8181"
+
+  - name: JOBS_DB_HOST
+    value: "backend3-postgresql"
+  - name: JOBS_DB_USER
+    value: "rudder"
+  - name: JOBS_DB_PORT
+    value: "5432"
+  - name: JOBS_DB_DB_NAME
+    value: "jobsdb"
+  - name: JOBS_DB_PASSWORD
+    value: "password"
+
+  - name: CONFIG_BACKEND_URL
+    value: "https://api.rudderlabs.com"
+  - name: CONFIG_BACKEND_TOKEN
+    value: "<Place your workspace token here>"
+  - name: CONFIG_PATH
+    value: "/etc/config/config.toml"
+  - name: STATSD_SERVER_URL
+    value: "grafana:8125"
+  - name: RUDDER_TMPDIR
+    value: "/tmp"
 
 affinity: {}
