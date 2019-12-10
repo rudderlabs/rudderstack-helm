@@ -83,7 +83,7 @@ pollIntervalInS = 5
 # Stores related metadata in storagePath
 [recovery]
 enabled = true
-storagePath = "/etc/config/recovery_data.json"
+storagePath = "/tmp/recovery_data.json"
     [recovery.normal]
     crashThreshold = 5
     durationInS = 300
