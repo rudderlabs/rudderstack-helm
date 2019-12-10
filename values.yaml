@@ -101,25 +101,22 @@ persistence:
   annotations: {}
 tolerations: []
 
+transformer:
+  # fullname: 'transformer'
+  service:
+    port: 9090
+
+postgresql:
+  service:
+    ## PosgresSQL service type
+    type: ClusterIP
+    # clusterIP: None
+    port: 5432
+  postgresqlUsername: rudder
+  postgresqlPassword: password
+  postgresqlDatabase: jobsdb
+  
 extraEnvVars:
-  - name: USER_TRANSFORM_URL
-    value: "http://u-transformer:9292"
-  - name: DEST_TRANSFORM_URL
-    value: "http://backend3-transformer:9090/"
-  - name: TEST_SINK_URL
-    value: "http://test-sink:8181"
-
-  - name: JOBS_DB_HOST
-    value: "backend3-postgresql"
-  - name: JOBS_DB_USER
-    value: "rudder"
-  - name: JOBS_DB_PORT
-    value: "5432"
-  - name: JOBS_DB_DB_NAME
-    value: "jobsdb"
-  - name: JOBS_DB_PASSWORD
-    value: "password"
-
   - name: CONFIG_BACKEND_URL
     value: "https://api.rudderlabs.com"
   - name: CONFIG_BACKEND_TOKEN

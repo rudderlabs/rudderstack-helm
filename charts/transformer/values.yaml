@@ -35,7 +35,7 @@ securityContext:
 
 service:
   type: ClusterIP
-  port: 9090
+  # port: 9090
 
 ingress:
   enabled: false

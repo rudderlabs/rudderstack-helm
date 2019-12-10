@@ -106,11 +106,11 @@ replication:
 
 ## PostgreSQL user (has superuser privileges if username is `postgres`)
 ## ref: https://github.com/bitnami/bitnami-docker-postgresql/blob/master/README.md#setting-the-root-password-on-first-run
-postgresqlUsername: rudder
+# postgresqlUsername: rudder
 ## PostgreSQL password
 ## ref: https://github.com/bitnami/bitnami-docker-postgresql/blob/master/README.md#setting-the-root-password-on-first-run
 ##
-postgresqlPassword: password
+# postgresqlPassword: password
 
 ## PostgreSQL password using existing secret
 ## existingSecret: secret
@@ -121,7 +121,7 @@ postgresqlPassword: password
 ## Create a database
 ## ref: https://github.com/bitnami/bitnami-docker-postgresql/blob/master/README.md#creating-a-database-on-first-run
 ##
-postgresqlDatabase: jobsdb
+# postgresqlDatabase: jobsdb
 
 ## PostgreSQL data dir
 ## ref: https://github.com/bitnami/bitnami-docker-postgresql/blob/master/README.md
@@ -213,11 +213,11 @@ ldap:
   tls: false
 
 ## PostgreSQL service configuration
-service:
-  ## PosgresSQL service type
-  type: ClusterIP
-  # clusterIP: None
-  port: 5432
+# service:
+#   ## PosgresSQL service type
+#   type: ClusterIP
+#   # clusterIP: None
+#   port: 5432
 
   ## Specify the nodePort value for the LoadBalancer and NodePort service types.
   ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
