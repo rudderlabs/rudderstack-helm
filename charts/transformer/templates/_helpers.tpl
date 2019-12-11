@@ -50,14 +50,3 @@ Selector labels
 app.kubernetes.io/name: {{ include "transformer.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
-
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "transformer.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-    {{ default (include "transformer.fullname" .) .Values.serviceAccount.name }}
-{{- else -}}
-    {{ default "default" .Values.serviceAccount.name }}
-{{- end -}}
-{{- end -}}
