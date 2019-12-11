@@ -59,7 +59,7 @@ spec:
               {{- .Values.extraEnvVars | toYaml | nindent 12 }}
             {{- end }}
             - name: DEST_TRANSFORM_URL
-              value: "http://{{ .Release.Name }}-transformer:{{ .Values.transformer.service.port}}/"
+              value: "http://{{ .Release.Name }}-transformer:{{ .Values.transformer.service.port}}"
             - name: JOBS_DB_HOST
               value: "{{ .Release.Name }}-postgresql"
             - name: JOBS_DB_USER

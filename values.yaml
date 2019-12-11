@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: lokikargo/backend
-  version: v2
+  version: v3
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -120,7 +120,7 @@ extraEnvVars:
   - name: CONFIG_BACKEND_URL
     value: "https://api.rudderlabs.com"
   - name: CONFIG_BACKEND_TOKEN
-    value: "<Place your workspace token here>"
+    value: "1SByoJzjijSZ54T0p8xkBHUBYiy"
   - name: CONFIG_PATH
     value: "/etc/config/config.toml"
   - name: STATSD_SERVER_URL

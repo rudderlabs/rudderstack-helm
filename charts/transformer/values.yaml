@@ -67,7 +67,7 @@ extraEnvVars:
   - name: CONFIG_BACKEND_URL
     value: "https://api.rudderlabs.com"
   - name: ENABLE_FUNCTIONS
-    value: "false"
+    value: "true"
 
 nodeSelector: {}
 
