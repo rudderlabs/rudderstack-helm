@@ -95,7 +95,6 @@ persistence:
 tolerations: []
 
 transformer:
-  # fullname: 'transformer'
   service:
     port: 9090
 
