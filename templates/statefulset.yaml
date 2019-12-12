@@ -27,8 +27,12 @@ spec:
       volumes:
         - configMap:
             defaultMode: 420
-            name: {{ .Release.Name }}-configmap
-          name: config-volume
+            name: {{ .Release.Name }}-backend-configmap
+          name: backend-config-volume
+        - configMap:
+            defaultMode: 444
+            name: {{ .Release.Name }}-statsd-configmap
+          name: statsd-config-volume
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -37,7 +41,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
           - mountPath: /etc/config
-            name: config-volume
+            name: backend-config-volume
           ports:
             - name: backend
               containerPort: {{ .Values.service.port }}
@@ -67,6 +71,19 @@ spec:
               value: "{{ .Values.postgresql.postgresqlDatabase }}"
             - name: JOBS_DB_PASSWORD
               value: "{{ .Values.postgresql.postgresqlPassword }}"
+            - name: STATSD_SERVER_URL
+              value: "localhost:{{ .Values.statsd.service.port }}"
+        - name: "statsd"
+          image: "{{ .Values.statsd.image.repository }}:{{ .Values.statsd.image.version }}"
+          imagePullPolicy: {{ .Values.statsd.image.pullPolicy }}
+          command: ["node"]	
+          args: ["stats.js", "/etc/statsd/config.js"]	
+          volumeMounts:
+          - mountPath: /etc/statsd
+            name: statsd-config-volume
+          ports:
+            - name: statsd
+              containerPort: {{ .Values.statsd.service.port }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

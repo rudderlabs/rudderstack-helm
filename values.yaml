@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: lokikargo/backend
-  version: v3
+  version: v4
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -115,9 +115,24 @@ extraEnvVars:
     value: "1SByoJzjijSZ54T0p8xkBHUBYiy"
   - name: CONFIG_PATH
     value: "/etc/config/config.toml"
-  - name: STATSD_SERVER_URL
-    value: "grafana:8125"
+ 
   - name: RUDDER_TMPDIR
     value: "/tmp"
+  - name: AWS_ACCESS_KEY_ID
+    value: "Add your aws key id here"
+  - name: AWS_SECRET_ACCESS_KEY
+    value: "Add your aws secret access key here"
+  - name: INSTANCE_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.name
+
+statsd:
+  service:
+    port: 8125
+  image:
+    repository: statsd/statsd
+    version: latest
+    pullPolicy: IfNotPresent
 
 affinity: {}
