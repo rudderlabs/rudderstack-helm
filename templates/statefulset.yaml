@@ -55,6 +55,8 @@ spec:
           {{- if .Values.extraEnvVars }}
             {{- .Values.extraEnvVars | toYaml | nindent 10 }}
           {{- end }}
+          - name: CONFIG_BACKEND_TOKEN
+            value: {{ .Values.rudderApiToken }}      
           - name: DEST_TRANSFORM_URL
             value: "http://{{ .Release.Name }}-transformer:{{ .Values.transformer.service.port}}"
           - name: JOBS_DB_HOST
