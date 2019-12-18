@@ -9,22 +9,8 @@ image:
   version: v4
   pullPolicy: IfNotPresent
 
-imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
-
-podSecurityContext:
-  {}
-  # fsGroup: 2000
-
-securityContext:
-  {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
 
 service:
   type: NodePort
@@ -43,26 +29,9 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-postgresql:
-  enabled: true
-  postgresqlPostgresPassword: "password"
-  postgresqlUsername: "rudder"
-  postgresqlPassword: "password"
-  postgresqlDatabase: "jobsdb"
+global:
+  imagePullSecrets: []
 
-  imagePullPolicy: IfNotPresent
-
-  persistence:
-    enabled: true
-    ## If defined, storageClassName: <storageClass>
-    ## If set to "-", storageClassName: "", which disables dynamic provisioning
-    ## If undefined (the default) or set to null, no storageClassName spec is
-    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-    ##   GKE, AWS & OpenStack)
-    ##
-    storageClass: ""
-    accessMode: ReadWriteOnce
-    size: 10Gi
 resources:
   {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -94,27 +63,16 @@ persistence:
   annotations: {}
 tolerations: []
 
-transformer:
-  service:
-    port: 9090
+config:
+  mountPath: "/etc/rudder"
 
-postgresql:
-  service:
-    ## PosgresSQL service type
-    type: ClusterIP
-    # clusterIP: None
-    port: 5432
-  postgresqlUsername: rudder
-  postgresqlPassword: password
-  postgresqlDatabase: jobsdb
-  
 extraEnvVars:
   - name: CONFIG_BACKEND_URL
     value: "https://api.rudderlabs.com"
   - name: CONFIG_BACKEND_TOKEN
     value: "1SByoJzjijSZ54T0p8xkBHUBYiy"
   - name: CONFIG_PATH
-    value: "/etc/config/config.toml"
+    value: "/etc/rudder/config.toml"
  
   - name: RUDDER_TMPDIR
     value: "/tmp"
@@ -127,12 +85,42 @@ extraEnvVars:
       fieldRef:
         fieldPath: metadata.name
 
+transformer:
+  service:
+    port: 9090
+
+postgresql:
+  enabled: true
+  postgresqlPostgresPassword: "password"
+  postgresqlUsername: rudder
+  postgresqlPassword: password
+  postgresqlDatabase: jobsdb
+
+  imagePullPolicy: IfNotPresent
+
+  persistence:
+    enabled: true
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    storageClass: ""
+    accessMode: ReadWriteOnce
+    size: 10Gi
+  service:
+    type: ClusterIP
+    port: 5432
+  fullnameOverride: "rudder-postgresql"
+
+  
 statsd:
   service:
     port: 8125
   image:
     repository: statsd/statsd
-    version: latest
+    digest: "sha256:4acd7c1224c30ece075c38b167be1cc424cde33445c5b74a692087faf78b2cf8"
     pullPolicy: IfNotPresent
 
 affinity: {}

@@ -4,4 +4,4 @@ metadata:
   name: {{ .Release.Name }}-backend-configmap
 data:
   config.toml: |-
-{{ .Files.Get "config.toml" | indent 4}}
+{{ .Files.Get "rudder-config.toml" | indent 4}}

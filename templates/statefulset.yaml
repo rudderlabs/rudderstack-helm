@@ -22,8 +22,6 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
         - configMap:
             defaultMode: 420
@@ -34,56 +32,56 @@ spec:
             name: {{ .Release.Name }}-statsd-configmap
           name: statsd-config-volume
       containers:
-        - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.version }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          volumeMounts:
-          - mountPath: /etc/config
-            name: backend-config-volume
-          ports:
-            - name: backend
-              containerPort: {{ .Values.service.port }}
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: {{ .Values.service.port }}
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: {{ .Values.service.port }}
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-          env:
-            {{- if .Values.extraEnvVars }}
-              {{- .Values.extraEnvVars | toYaml | nindent 12 }}
-            {{- end }}
-            - name: DEST_TRANSFORM_URL
-              value: "http://{{ .Release.Name }}-transformer:{{ .Values.transformer.service.port}}"
-            - name: JOBS_DB_HOST
-              value: "{{ .Release.Name }}-postgresql"
-            - name: JOBS_DB_USER
-              value: "{{ .Values.postgresql.postgresqlUsername }}"
-            - name: JOBS_DB_PORT
-              value: "{{ .Values.postgresql.service.port }}"
-            - name: JOBS_DB_DB_NAME
-              value: "{{ .Values.postgresql.postgresqlDatabase }}"
-            - name: JOBS_DB_PASSWORD
-              value: "{{ .Values.postgresql.postgresqlPassword }}"
-            - name: STATSD_SERVER_URL
-              value: "localhost:{{ .Values.statsd.service.port }}"
-        - name: "statsd"
-          image: "{{ .Values.statsd.image.repository }}:{{ .Values.statsd.image.version }}"
-          imagePullPolicy: {{ .Values.statsd.image.pullPolicy }}
-          command: ["node"]	
-          args: ["stats.js", "/etc/statsd/config.js"]	
-          volumeMounts:
-          - mountPath: /etc/statsd
-            name: statsd-config-volume
-          ports:
-            - name: statsd
-              containerPort: {{ .Values.statsd.service.port }}
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.version }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        volumeMounts:
+        - mountPath: {{ .Values.config.mountPath }}
+          name: backend-config-volume
+        ports:
+          - name: backend
+            containerPort: {{ .Values.service.port }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.service.port }}
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.service.port }}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        env:
+          {{- if .Values.extraEnvVars }}
+            {{- .Values.extraEnvVars | toYaml | nindent 10 }}
+          {{- end }}
+          - name: DEST_TRANSFORM_URL
+            value: "http://{{ .Release.Name }}-transformer:{{ .Values.transformer.service.port}}"
+          - name: JOBS_DB_HOST
+            value: "{{ .Release.Name }}-postgresql"
+          - name: JOBS_DB_USER
+            value: "{{ .Values.postgresql.postgresqlUsername }}"
+          - name: JOBS_DB_PORT
+            value: "{{ .Values.postgresql.service.port }}"
+          - name: JOBS_DB_DB_NAME
+            value: "{{ .Values.postgresql.postgresqlDatabase }}"
+          - name: JOBS_DB_PASSWORD
+            value: "{{ .Values.postgresql.postgresqlPassword }}"
+          - name: STATSD_SERVER_URL
+            value: "localhost:{{ .Values.statsd.service.port }}"
+        command: ["/bin/sh"]
+        args: ["-c", "./build/wait-for $(JOBS_DB_HOST):$(JOBS_DB_PORT) -- go run -mod=vendor main.go"] 
+      - name: "statsd"
+        image: "{{ .Values.statsd.image.repository }}@{{ .Values.statsd.image.digest }}"
+        imagePullPolicy: {{ .Values.statsd.image.pullPolicy }}
+        command: ["node"]	
+        args: ["stats.js", "/etc/statsd/config.js"]	
+        volumeMounts:
+        - mountPath: /etc/statsd
+          name: statsd-config-volume
+        ports:
+          - name: statsd
+            containerPort: {{ .Values.statsd.service.port }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

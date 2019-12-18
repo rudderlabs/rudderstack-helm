@@ -4,4 +4,4 @@ metadata:
   name: {{ .Release.Name }}-statsd-configmap
 data:
   config.js: |-
-{{ .Files.Get "statsdConfig.js" | indent 4}}
+{{ .Files.Get "statsd-config.js" | indent 4}}
