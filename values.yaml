@@ -27,99 +27,91 @@ ingress:
 
 replicaCount: 1
 
-image:
-  repository: lokikargo/backend
-  version: v4
-  pullPolicy: IfNotPresent
-
-nameOverride: ""
-fullnameOverride: ""
-
-service:
-  type: NodePort
-  port: 8080
-
 global:
   imagePullSecrets: []
-
-resources:
-  {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-nodeSelector: {}
-
-persistence:
-  enabled: true
-  mountPath: /bitnami/rudder
-
-  ## The subdirectory of the volume to mount to, useful in dev environments
-  ## and one PV for multiple services.
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
   ##
-  subPath: ""
+  storageClass: ""
 
-  # storageClass: "-"
-  accessModes:
-    - ReadWriteOnce
-  size: 8Gi
-  annotations: {}
-tolerations: []
+backend:
+  image:
+    repository: lokikargo/backend
+    version: v4
+    pullPolicy: IfNotPresent
+  service:
+    type: NodePort
+    port: 8080  
+  resources:
+    {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
-config:
-  mountPath: "/etc/rudder"
+  nodeSelector: {}
 
-extraEnvVars:
-  - name: CONFIG_BACKEND_URL
-    value: "https://api.rudderlabs.com"
-  - name: CONFIG_PATH
-    value: "/etc/rudder/config.toml"
-  - name: RUDDER_TMPDIR
-    value: "/tmp"
-  - name: AWS_ACCESS_KEY_ID
-    value: "Add your aws key id here"
-  - name: AWS_SECRET_ACCESS_KEY
-    value: "Add your aws secret access key here"
-  - name: INSTANCE_NAME
-    valueFrom:
-      fieldRef:
-        fieldPath: metadata.name
+  persistence:
+    mountPath: /data/rudderstack
+    accessModes:
+      - ReadWriteOnce
+    size: 36Gi
+    annotations: {}
+  tolerations: []
+
+  config:
+    mountPath: "/etc/rudderstack"
+
+  extraEnvVars:
+    - name: CONFIG_BACKEND_URL
+      value: "https://api.rudderlabs.com"
+    - name: CONFIG_PATH
+      value: "/etc/rudderstack/config.toml"
+    - name: RUDDER_TMPDIR
+      value: "/data/rudderstack"
+    - name: AWS_ACCESS_KEY_ID
+      value: "Add your aws key id here"
+    - name: AWS_SECRET_ACCESS_KEY
+      value: "Add your aws secret access key here"
+    - name: INSTANCE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
 
 transformer:
   service:
     port: 9090
 
 postgresql:
-  enabled: true
   postgresqlPostgresPassword: "password"
   postgresqlUsername: rudder
   postgresqlPassword: password
   postgresqlDatabase: jobsdb
-
+  postgresqlRunAsUser: 70
   imagePullPolicy: IfNotPresent
-
+  image:
+    repository: postgres
+    version: "11-alpine"
+    pullPolicy: IfNotPresent
+  config:
+    mountPath: "/etc/postgresql"
   persistence:
-    enabled: true
-    ## If defined, storageClassName: <storageClass>
-    ## If set to "-", storageClassName: "", which disables dynamic provisioning
-    ## If undefined (the default) or set to null, no storageClassName spec is
-    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-    ##   GKE, AWS & OpenStack)
-    ##
-    storageClass: ""
-    accessMode: ReadWriteOnce
-    size: 10Gi
+    mountPath: "/data/postgresql"
+    accessModes:
+    - ReadWriteOnce
+    size: 100Gi
+    annotations: {}
   service:
-    type: ClusterIP
     port: 5432
-  fullnameOverride: "rudder-postgresql"
 
   
 statsd:
@@ -129,5 +121,8 @@ statsd:
     repository: statsd/statsd
     digest: "sha256:4acd7c1224c30ece075c38b167be1cc424cde33445c5b74a692087faf78b2cf8"
     pullPolicy: IfNotPresent
+  config:
+    mountPath: "/etc/statsd"
+  
 
 affinity: {}

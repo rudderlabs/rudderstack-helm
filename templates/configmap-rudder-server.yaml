@@ -1,7 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-backend-configmap
+  name: {{ include "backend.fullname" . }}-config
+  labels:
+    app: {{ include "backend.name" . }}
+    release: {{ .Release.Name | quote }}
 data:
   config.toml: |-
 {{ .Files.Get "rudder-config.toml" | indent 4}}

@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+apiVersion: {{ include "statefulset.apiVersion" . }}
 kind: StatefulSet
 metadata:
   name: {{ include "rudderstack.fullname" . }}
@@ -15,52 +15,61 @@ spec:
       labels:
         {{- include "rudderstack.selectorLabels" . | nindent 8 }}
       annotations:
-        checksum/config: {{ .Files.Get "config.toml" | sha256sum }}
-
+        checksum/rudder-config: {{ .Files.Get "rudder-config.toml" | sha256sum }}
+        checksum/postgresql-config: {{ .Files.Get "postgresql.conf" | sha256sum }} 
+        checksum/pg-hba-config: {{ .Files.Get "pg_hba.conf" | sha256sum }}
     spec:
-    {{- with .Values.imagePullSecrets }}
+    {{- with .Values.global.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       volumes:
         - configMap:
             defaultMode: 420
-            name: {{ .Release.Name }}-backend-configmap
+            name: {{ include "backend.fullname" . }}-config
           name: backend-config-volume
         - configMap:
             defaultMode: 444
-            name: {{ .Release.Name }}-statsd-configmap
+            name: {{ include "statsd.fullname" . }}-config
           name: statsd-config-volume
+        - configMap:
+            defaultMode: 444
+            name: {{ include "postgresql.fullname" . }}-config
+          name: postgresql-config-volume
+
       containers:
-      - name: {{ .Chart.Name }}
-        image: "{{ .Values.image.repository }}:{{ .Values.image.version }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+      - name: {{ include "backend.name" . }}
+        image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.version }}"
+        imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
         volumeMounts:
-        - mountPath: {{ .Values.config.mountPath }}
+        - mountPath: {{ .Values.backend.config.mountPath }}
           name: backend-config-volume
+        - mountPath: {{ .Values.backend.persistence.mountPath }}
+          name: {{ include "backend.name" . }}-data
         ports:
           - name: backend
-            containerPort: {{ .Values.service.port }}
+            containerPort: {{ .Values.backend.service.port }}
         livenessProbe:
           httpGet:
             path: /health
-            port: {{ .Values.service.port }}
+            port: {{ .Values.backend.service.port }}
+          initialDelaySeconds: 120
         readinessProbe:
           httpGet:
             path: /health
-            port: {{ .Values.service.port }}
+            port: {{ .Values.backend.service.port }}
         resources:
-          {{- toYaml .Values.resources | nindent 10 }}
+          {{- toYaml .Values.backend.resources | nindent 10 }}
         env:
-          {{- if .Values.extraEnvVars }}
-            {{- .Values.extraEnvVars | toYaml | nindent 10 }}
+          {{- if .Values.backend.extraEnvVars }}
+            {{- .Values.backend.extraEnvVars | toYaml | nindent 10 }}
           {{- end }}
           - name: CONFIG_BACKEND_TOKEN
             value: {{ .Values.rudderApiToken }}      
           - name: DEST_TRANSFORM_URL
-            value: "http://{{ .Release.Name }}-transformer:{{ .Values.transformer.service.port}}"
+            value: "http://{{ include "transformer.fullname" . }}:{{ .Values.transformer.service.port}}"
           - name: JOBS_DB_HOST
-            value: "{{ .Release.Name }}-postgresql"
+            value: "localhost"
           - name: JOBS_DB_USER
             value: "{{ .Values.postgresql.postgresqlUsername }}"
           - name: JOBS_DB_PORT
@@ -73,17 +82,48 @@ spec:
             value: "localhost:{{ .Values.statsd.service.port }}"
         command: ["/bin/sh"]
         args: ["-c", "./build/wait-for $(JOBS_DB_HOST):$(JOBS_DB_PORT) -- go run -mod=vendor main.go"] 
-      - name: "statsd"
+        
+      - name: {{ include "postgresql.name" . }}
+        image: "{{ .Values.postgresql.image.repository }}:{{ .Values.postgresql.image.version }}"
+        imagePullPolicy: {{ .Values.postgresql.image.pullPolicy }}
+        {{- if .Values.postgresql.resources }}
+        resources: 
+          {{- toYaml .Values.postgresql.resources | nindent 10 }}
+        {{- end }}
+        env:
+        - name: POSTGRES_USER
+          value: "{{ .Values.postgresql.postgresqlUsername }}"
+        - name: POSTGRES_PASSWORD
+          value: "{{ .Values.postgresql.postgresqlPassword }}"
+        - name: POSTGRES_DB
+          value: "{{ .Values.postgresql.postgresqlDatabase }}"
+        - name: PGDATA
+          value: "{{ .Values.postgresql.persistence.mountPath }}/pgdata"
+        command: ["docker-entrypoint.sh"]
+        args: ["-c","config_file={{ .Values.postgresql.config.mountPath }}/postgresql.conf","-c","hba_file={{ .Values.postgresql.config.mountPath }}/pg_hba.conf"]
+        volumeMounts:
+        - mountPath: {{ .Values.postgresql.config.mountPath }}
+          name: postgresql-config-volume
+        - mountPath: {{ .Values.postgresql.persistence.mountPath }}
+          name: {{ include "postgresql.name" . }}-data
+        ports:
+        - name: postgresql
+          containerPort: {{ .Values.postgresql.service.port }}
+      - name: {{ include "statsd.name" . }}
         image: "{{ .Values.statsd.image.repository }}@{{ .Values.statsd.image.digest }}"
         imagePullPolicy: {{ .Values.statsd.image.pullPolicy }}
+        {{- if .Values.statsd.resources }}
+        resources: 
+          {{- toYaml .Values.statsd.resources | nindent 10 }}
+        {{- end }}
         command: ["node"]	
-        args: ["stats.js", "/etc/statsd/config.js"]	
+        args: ["stats.js", "{{ .Values.statsd.config.mountPath }}/config.js"]	
         volumeMounts:
-        - mountPath: /etc/statsd
+        - mountPath: {{ .Values.statsd.config.mountPath }}
           name: statsd-config-volume
         ports:
-          - name: statsd
-            containerPort: {{ .Values.statsd.service.port }}
+        - name: statsd
+          containerPort: {{ .Values.statsd.service.port }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -99,20 +139,36 @@ spec:
   
   volumeClaimTemplates:
     - metadata:
-        name: data
-      {{- with .Values.persistence.annotations }}
+        name: {{ include "backend.name" . }}-data
+    {{- with .Values.backend.persistence.annotations }}
+      annotations:
+      {{- range $key, $value := . }}
+        {{ $key }}: {{ $value }}
+      {{- end }}
+    {{- end }}
+      spec:
+        storageClassName: {{ .Values.global.storageClass }}
+        accessModes:
+        {{- range .Values.backend.persistence.accessModes }}
+         - {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+           storage: {{ .Values.backend.persistence.size | quote }}
+    - metadata:
+        name: {{ include "postgresql.name" . }}-data
+      {{- with .Values.postgresql.persistence.annotations }}
         annotations:
         {{- range $key, $value := . }}
           {{ $key }}: {{ $value }}
         {{- end }}
       {{- end }}
       spec:
+        storageClassName: {{ .Values.global.storageClass }}
         accessModes:
-        {{- range .Values.persistence.accessModes }}
+        {{- range .Values.postgresql.persistence.accessModes }}
           - {{ . | quote }}
         {{- end }}
         resources:
           requests:
-            storage: {{ .Values.persistence.size | quote }}
-        {{ include "postgresql.storageClass" . }}
-        #TODO: Remove prev line??
+            storage: {{ .Values.postgresql.persistence.size | quote }}

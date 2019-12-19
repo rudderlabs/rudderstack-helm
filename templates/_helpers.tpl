@@ -50,3 +50,106 @@ Selector labels
 app.kubernetes.io/name: {{ include "rudderstack.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
+
+{{- define "postgresql.name" -}}
+{{- printf "%s-%s" (include "rudderstack.name" .) "postgresql" -}}
+{{- end -}}
+
+{{- define "postgresql.fullname" -}}
+{{- printf "%s-%s" (include "rudderstack.fullname" .) "postgresql" -}}
+{{- end -}}
+
+{{- define "transformer.name" -}}
+{{- printf "%s-%s" (include "rudderstack.name" .) "transformer" -}}
+{{- end -}}
+
+{{- define "transformer.fullname" -}}
+{{- printf "%s-%s" (include "rudderstack.fullname" .) "transformer" -}}
+{{- end -}}
+
+{{- define "backend.name" -}}
+{{- printf "%s-%s" (include "rudderstack.name" .) "backend" -}}
+{{- end -}}
+
+{{- define "backend.fullname" -}}
+{{- printf "%s-%s" (include "rudderstack.fullname" .) "backend" -}}
+{{- end -}}
+
+{{- define "statsd.name" -}}
+{{- printf "%s-%s" (include "rudderstack.name" .) "statsd" -}}
+{{- end -}}
+
+{{- define "statsd.fullname" -}}
+{{- printf "%s-%s" (include "rudderstack.fullname" .) "statsd" -}}
+{{- end -}}
+
+{{/*
+Get the configuration ConfigMap name.
+*/}}
+{{- define "postgresql.configurationCM" -}}
+{{- printf "%s-configuration" (include "postgresql.fullname" .) -}}
+{{- end -}}
+
+{{/*
+Get the extended configuration ConfigMap name.
+*/}}
+{{- define "postgresql.extendedConfigurationCM" -}}
+{{- printf "%s-extended-configuration" (include "postgresql.fullname" .) -}}
+{{- end -}}
+
+{{/*
+Get the initialization scripts ConfigMap name.
+*/}}
+{{- define "postgresql.initdbScriptsCM" -}}
+{{- if .Values.initdbScriptsConfigMap -}}
+{{- printf "%s" (tpl .Values.initdbScriptsConfigMap $) -}}
+{{- else -}}
+{{- printf "%s-init-scripts" (include "postgresql.fullname" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get the initialization scripts Secret name.
+*/}}
+{{- define "postgresql.initdbScriptsSecret" -}}
+{{- printf "%s" (tpl .Values.initdbScriptsSecret $) -}}
+{{- end -}}
+
+{{/*
+Get the readiness probe command
+*/}}
+{{- define "postgresql.readinessProbeCommand" -}}
+- |
+{{- if (include "postgresql.database" .) }}
+  pg_isready -U {{ include "postgresql.username" . | quote }} -d {{ (include "postgresql.database" .) | quote }} -h 127.0.0.1 -p {{ template "postgresql.port" . }}
+{{- else }}
+  pg_isready -U {{ include "postgresql.username" . | quote }} -h 127.0.0.1 -p {{ template "postgresql.port" . }}
+{{- end }}
+{{- if contains "bitnami/" .Values.image.repository }}
+  [ -f /opt/bitnami/postgresql/tmp/.initialized ]
+{{- end -}}
+{{- end -}}
+
+{{/*
+Renders a value that contains template.
+Usage:
+{{ include "postgresql.tplValue" ( dict "value" .Values.path.to.the.Value "context" $) }}
+*/}}
+{{- define "postgresql.tplValue" -}}
+    {{- if typeIs "string" .value }}
+        {{- tpl .value .context }}
+    {{- else }}
+        {{- tpl (.value | toYaml) .context }}
+    {{- end }}
+{{- end -}}
+
+{{/*
+Return the appropriate apiVersion for statefulset.
+*/}}
+{{- define "statefulset.apiVersion" -}}
+{{- if semverCompare "<1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+{{- print "apps/v1beta2" -}}
+{{- else -}}
+{{- print "apps/v1" -}}
+{{- end -}}
+{{- end -}}

@@ -9,7 +9,7 @@ image:
   version: v3
   pullPolicy: IfNotPresent
 
-nameOverride: ""
+nameOverride: "rudderstack"
 fullnameOverride: ""
 
 service:

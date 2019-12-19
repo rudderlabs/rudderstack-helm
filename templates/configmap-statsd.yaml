@@ -1,7 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-statsd-configmap
+  name: {{ include "statsd.fullname" . }}-config
+  labels:
+    app: {{ include "statsd.name" . }}
+    release: {{ .Release.Name | quote }}
 data:
   config.js: |-
 {{ .Files.Get "statsd-config.js" | indent 4}}
