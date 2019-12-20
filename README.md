@@ -7,7 +7,7 @@
 ```bash
 $ git clone git@github.com:rudderlabs/rudderstack-helm.git
 $ cd rudderstack-helm/
-$ helm install production ./
+$ helm install my-release ./ --set rudderWorkspaceToken="<workspace token from the dashboard>"
 ```
 
 ## Introduction
@@ -17,7 +17,7 @@ using the [Helm](https://helm.sh) package manager.
 
 ## Prerequisites
 
-- Kubernetes installed and connected a cluster
+- Kubectl installed and connected to your kubernetes cluster
 - Helm installed
 - Workspace token from the [dashboard](https://app.rudderlabs.com). Set up your account and copy your workspace token from the top of the home page.
 
@@ -26,7 +26,7 @@ using the [Helm](https://helm.sh) package manager.
 To install the chart with the release name `my-release`, from the root directory of this repo:
 
 ```bash
-$ helm install --name my-release ./ --set rudderWorkspaceToken="<workspace token from the dashboard>"
+$ helm install my-release ./ --set rudderWorkspaceToken="<workspace token from the dashboard>"
 ```
 
 The command deploys Rudderstack on the default Kubernetes cluster configured with `kubectl`. The [configuration](#configuration) section lists the most significant parameters that can be configured during deployment.
