@@ -65,33 +65,33 @@ The following table lists the configurable parameters of the Rudderstack chart a
 | `ingress.enabled`                   | If `true`, an ingress is created                                                                    | `true`                   |
 | `ingress.hosts`                     | A list of ingress hosts                                                                             | `[]`                     |
 | `ingress.tls`                       | A list of [ingress tls](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls) items | `[]`                     |
-| `extraEnvVars`                      | Extra environments variables to be used by the backend in the deployments                           | `[]`                     |
+| `backend.extraEnvVars`              | Extra environments variables to be used by the backend in the deployments                           | `[]`                     |
 
 Each of these parameters can be changed in values.yaml. Or specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
 ```bash
 $ helm install --name my-release \
-  --set backend.image.tag=5.12.4 \
+  --set backend.image.tag=0.1.4 \
   --set ingress.enabled=false \
   ./
 ```
 
 **Note:** Configuration specific to
 
-- backend can be edited in rudder-config.toml
-- statsd client can be edited in statsd-config.js
+- backend can be edited in [rudder-config.toml](https://docs.rudderlabs.com/administrators-guide/config-parameters).
+- statsd client can be edited in statsd-config.js. Statsd server related info is **required** to collect stats.
 - Configuration specific to postgres can be edited in pg_hba.conf, postgresql.conf
 
 ## Components
 
 Installing this helm chart will deploy the following pods and containers in the configured cluster
 
-### POD1:
+#### POD1:
 
 - Backend
 - Postgres
 - Statsd server
 
-### POD2:
+#### POD2:
 
 - Transformer
