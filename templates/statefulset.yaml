@@ -98,8 +98,7 @@ spec:
         - name: POSTGRES_DB
           value: "{{ .Values.postgresql.postgresqlDatabase }}"
         - name: PGDATA
-          value: "{{ .Values.postgresql.persistence.mountPath }}/pgdata"
-        command: ["docker-entrypoint.sh"]
+          value: "{{ .Values.postgresql.persistence.mountPath }}/pgdata"   
         args: ["-c","config_file={{ .Values.postgresql.config.mountPath }}/postgresql.conf","-c","hba_file={{ .Values.postgresql.config.mountPath }}/pg_hba.conf"]
         volumeMounts:
         - mountPath: {{ .Values.postgresql.config.mountPath }}
