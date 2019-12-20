@@ -8,8 +8,7 @@
 
 # Please uncomment below lines and fill values accordingly.
 # Please enter api token obtained from rudder dashboard below
-# rudderApiToken: 
-rudderApiToken: "1SByoJzjijSZ54T0p8xkBHUBYiy"
+# rudderWorkspaceToken: 
 
 ingress:
   enabled: true
