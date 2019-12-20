@@ -17,9 +17,9 @@ using the [Helm](https://helm.sh) package manager.
 
 ## Prerequisites
 
-- Kuberentes installed and connected a cluster
+- Kubernetes installed and connected a cluster
 - Helm installed
-- Workspace token from the [dashboard](https://app.rudderlabs.com). Set up your account and copy your workspace token from top of the home page.
+- Workspace token from the [dashboard](https://app.rudderlabs.com). Set up your account and copy your workspace token from the top of the home page.
 
 ## Installing the Chart
 
@@ -29,7 +29,7 @@ To install the chart with the release name `my-release`, from the root directory
 $ helm install --name my-release ./ --set rudderWorkspaceToken="<workspace token from the dashboard>"
 ```
 
-The command deploys Rudderstack on the default kubernetes cluster configured with `kubectl`. The [confiuration](#configuration) section lists the most significant parameters that can be configured during deployment.
+The command deploys Rudderstack on the default Kubernetes cluster configured with `kubectl`. The [configuration](#configuration) section lists the most significant parameters that can be configured during deployment.
 
 ## Upgrading the Chart
 
@@ -78,9 +78,9 @@ $ helm install --name my-release \
 
 **Note:** Configuration specific to
 
-- backend can be edited in [rudder-config.toml](https://docs.rudderlabs.com/administrators-guide/config-parameters).
-- statsd client can be edited in statsd-config.js. Statsd server related info is **required** to collect stats.
-- Configuration specific to postgres can be edited in pg_hba.conf, postgresql.conf
+- Backend can be edited in [rudder-config.toml](https://docs.rudderlabs.com/administrators-guide/config-parameters).
+- Statsd client can be edited in statsd-config.js. Statsd server related info is **required** to collect stats.
+- Postgres can be edited in pg_hba.conf, postgresql.conf
 
 ## Components
 
