@@ -1,10 +1,8 @@
 {{- if .Values.ingress.enabled }}
-{{- range $host := .Values.ingress.hosts }}
   NOTE: It may take a few minutes for the URL to be available.
   Data plane URL:
-  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}
-  Check http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}/health to see the status
-{{- end }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hostName }}
+  Check http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hostName }}/health to see the status
 {{- else if contains "NodePort" .Values.service.type }}
   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "rudderstack.fullname" . }})
   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")

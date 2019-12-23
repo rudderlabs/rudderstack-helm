@@ -8,3 +8,5 @@ metadata:
 data:
   config.toml: |-
 {{ .Files.Get "rudder-config.toml" | indent 4}}
+  google-application-credentials.json: |-
+{{.Files.Get "rudder-google-application-credentials.json" | indent 4}}

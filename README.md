@@ -63,7 +63,7 @@ The following table lists the configurable parameters of the Rudderstack chart a
 | `transformer.image.tag`             | Container image tag for the transformer                                                             | `0.1.1`                  |
 | `transformer.image.imagePullPolicy` | Container image pull policy for the transformer image                                               | `IfNotPresent`           |
 | `ingress.enabled`                   | If `true`, an ingress is created                                                                    | `true`                   |
-| `ingress.hosts`                     | A list of ingress hosts                                                                             | `[]`                     |
+| `ingress.hostName`                  | Endpoint of rudderstack backend. This is the dataplane url where you send events                    | ``                       |
 | `ingress.tls`                       | A list of [ingress tls](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls) items | `[]`                     |
 | `backend.extraEnvVars`              | Extra environments variables to be used by the backend in the deployments                           | `[]`                     |
 

@@ -16,6 +16,7 @@ spec:
         {{- include "rudderstack.selectorLabels" . | nindent 8 }}
       annotations:
         checksum/rudder-config: {{ .Files.Get "rudder-config.toml" | sha256sum }}
+        checksum/rudder-bigquery-credentials: {{ .Files.Get "bigquery-credentials.json" | sha256sum }}
         checksum/postgresql-config: {{ .Files.Get "postgresql.conf" | sha256sum }} 
         checksum/pg-hba-config: {{ .Files.Get "pg_hba.conf" | sha256sum }}
     spec:
@@ -99,7 +100,7 @@ spec:
           value: "{{ .Values.postgresql.postgresqlDatabase }}"
         - name: PGDATA
           value: "{{ .Values.postgresql.persistence.mountPath }}/pgdata"   
-        args: ["-c","config_file={{ .Values.postgresql.config.mountPath }}/postgresql.conf","-c","hba_file={{ .Values.postgresql.config.mountPath }}/pg_hba.conf"]
+        # args: ["-c","config_file={{ .Values.postgresql.config.mountPath }}/postgresql.conf","-c","hba_file={{ .Values.postgresql.config.mountPath }}/pg_hba.conf"]
         volumeMounts:
         - mountPath: {{ .Values.postgresql.config.mountPath }}
           name: postgresql-config-volume
