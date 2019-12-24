@@ -36,8 +36,8 @@ global:
 
 backend:
   image:
-    repository: lokikargo/backend
-    version: v6
+    repository: rudderlabs/rudder-server
+    version: v0.1.4
     pullPolicy: IfNotPresent
   service:
     type: NodePort

@@ -5,8 +5,8 @@
 replicaCount: 1
 
 image:
-  repository: lokikargo/transformer
-  version: v3
+  repository: rudderlabs/rudder-transformer
+  version: v0.1.2
   pullPolicy: IfNotPresent
 
 nameOverride: "rudderstack"
