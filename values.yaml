@@ -37,7 +37,7 @@ global:
 backend:
   image:
     repository: rudderlabs/rudder-server
-    version: v0.1.4
+    version: latest
     pullPolicy: IfNotPresent
   service:
     type: NodePort
@@ -88,6 +88,10 @@ backend:
 transformer:
   service:
     port: 9090
+  image:
+    repository: rudderlabs/rudder-transformer
+    version: latest
+    pullPolicy: IfNotPresent
 
 postgresql:
   postgresqlPostgresPassword: "password"
