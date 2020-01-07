@@ -82,7 +82,7 @@ spec:
           - name: STATSD_SERVER_URL
             value: "localhost:{{ .Values.statsd.service.port }}"
         command: ["/bin/sh"]
-        args: ["-c", "./build/wait-for $(JOBS_DB_HOST):$(JOBS_DB_PORT) -- go run -mod=vendor main.go"] 
+        args: ["-c", "/wait-for $(JOBS_DB_HOST):$(JOBS_DB_PORT) -- /rudder-server"]
         
       - name: {{ include "postgresql.name" . }}
         image: "{{ .Values.postgresql.image.repository }}:{{ .Values.postgresql.image.version }}"

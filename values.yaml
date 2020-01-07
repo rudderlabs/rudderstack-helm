@@ -38,7 +38,7 @@ backend:
   image:
     repository: rudderlabs/rudder-server
     version: latest
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   service:
     type: NodePort
     port: 8080  
@@ -91,7 +91,7 @@ transformer:
   image:
     repository: rudderlabs/rudder-transformer
     version: latest
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
 
 postgresql:
   postgresqlPostgresPassword: "password"
