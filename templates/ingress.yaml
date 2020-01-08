@@ -16,6 +16,9 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+  backend:
+    serviceName: {{ $fullName }}
+    servicePort: {{ $svcPort }}
 {{- if .Values.ingress.tls }}
   tls:
   {{- range .Values.ingress.tls }}
@@ -26,12 +29,4 @@ spec:
       secretName: {{ .secretName }}
   {{- end }}
 {{- end }}
-  rules:
-  - host: {{ .Values.ingress.hostName }}
-    http:
-      paths:
-        - path: "/*"
-          backend:
-            serviceName: {{ $fullName }}
-            servicePort: {{ $svcPort }}
 {{- end }}

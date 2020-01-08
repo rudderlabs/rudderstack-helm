@@ -6,7 +6,7 @@ metadata:
     {{- include "rudderstack.labels" . | nindent 4 }}
 spec:
   serviceName: {{ include "rudderstack.fullname" . }}
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.global.backendReplicaCount }}
   selector:
     matchLabels:
       {{- include "rudderstack.selectorLabels" . | nindent 6 }}
@@ -17,8 +17,6 @@ spec:
       annotations:
         checksum/rudder-config: {{ .Files.Get "rudder-config.toml" | sha256sum }}
         checksum/rudder-bigquery-credentials: {{ .Files.Get "bigquery-credentials.json" | sha256sum }}
-        checksum/postgresql-config: {{ .Files.Get "postgresql.conf" | sha256sum }} 
-        checksum/pg-hba-config: {{ .Files.Get "pg_hba.conf" | sha256sum }}
     spec:
     {{- with .Values.global.imagePullSecrets }}
       imagePullSecrets:
@@ -33,10 +31,6 @@ spec:
             defaultMode: 444
             name: {{ include "statsd.fullname" . }}-config
           name: statsd-config-volume
-        - configMap:
-            defaultMode: 444
-            name: {{ include "postgresql.fullname" . }}-config
-          name: postgresql-config-volume
 
       containers:
       - name: {{ include "backend.name" . }}
@@ -69,8 +63,14 @@ spec:
             value: {{ .Values.rudderWorkspaceToken }}      
           - name: DEST_TRANSFORM_URL
             value: "http://{{ include "transformer.fullname" . }}:{{ .Values.transformer.service.port}}"
+          - name: COMPUTE_DB_HOST_IN_K8S
+            value: "true"
+          - name: POSTGRES_POD_NAME
+            value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}"
+          - name: POSTGRES_HEADLESS_SVC
+            value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}-headless"
           - name: JOBS_DB_HOST
-            value: "localhost"
+            value: "This is expected to be set by docker entrypoint script"
           - name: JOBS_DB_USER
             value: "{{ .Values.postgresql.postgresqlUsername }}"
           - name: JOBS_DB_PORT
@@ -81,34 +81,9 @@ spec:
             value: "{{ .Values.postgresql.postgresqlPassword }}"
           - name: STATSD_SERVER_URL
             value: "localhost:{{ .Values.statsd.service.port }}"
-        command: ["/bin/sh"]
-        args: ["-c", "/wait-for $(JOBS_DB_HOST):$(JOBS_DB_PORT) -- /rudder-server"]
+        command: ["/docker-entrypoint.sh"]
+        args: ["/bin/sh","-c","/wait-for $JOBS_DB_HOST:$(JOBS_DB_PORT) -- /rudder-server"]
         
-      - name: {{ include "postgresql.name" . }}
-        image: "{{ .Values.postgresql.image.repository }}:{{ .Values.postgresql.image.version }}"
-        imagePullPolicy: {{ .Values.postgresql.image.pullPolicy }}
-        {{- if .Values.postgresql.resources }}
-        resources: 
-          {{- toYaml .Values.postgresql.resources | nindent 10 }}
-        {{- end }}
-        env:
-        - name: POSTGRES_USER
-          value: "{{ .Values.postgresql.postgresqlUsername }}"
-        - name: POSTGRES_PASSWORD
-          value: "{{ .Values.postgresql.postgresqlPassword }}"
-        - name: POSTGRES_DB
-          value: "{{ .Values.postgresql.postgresqlDatabase }}"
-        - name: PGDATA
-          value: "{{ .Values.postgresql.persistence.mountPath }}/pgdata"   
-        # args: ["-c","config_file={{ .Values.postgresql.config.mountPath }}/postgresql.conf","-c","hba_file={{ .Values.postgresql.config.mountPath }}/pg_hba.conf"]
-        volumeMounts:
-        - mountPath: {{ .Values.postgresql.config.mountPath }}
-          name: postgresql-config-volume
-        - mountPath: {{ .Values.postgresql.persistence.mountPath }}
-          name: {{ include "postgresql.name" . }}-data
-        ports:
-        - name: postgresql
-          containerPort: {{ .Values.postgresql.service.port }}
       - name: {{ include "statsd.name" . }}
         image: "{{ .Values.statsd.image.repository }}@{{ .Values.statsd.image.digest }}"
         imagePullPolicy: {{ .Values.statsd.image.pullPolicy }}
@@ -155,20 +130,3 @@ spec:
         resources:
           requests:
            storage: {{ .Values.backend.persistence.size | quote }}
-    - metadata:
-        name: {{ include "postgresql.name" . }}-data
-      {{- with .Values.postgresql.persistence.annotations }}
-        annotations:
-        {{- range $key, $value := . }}
-          {{ $key }}: {{ $value }}
-        {{- end }}
-      {{- end }}
-      spec:
-        storageClassName: {{ .Values.global.storageClass }}
-        accessModes:
-        {{- range .Values.postgresql.persistence.accessModes }}
-          - {{ . | quote }}
-        {{- end }}
-        resources:
-          requests:
-            storage: {{ .Values.postgresql.persistence.size | quote }}

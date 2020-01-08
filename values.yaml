@@ -11,20 +11,21 @@
 # rudderWorkspaceToken: 
 
 ingress:
-  hostName: "kubes.dev.rudderlabs.com"
   enabled: true
   annotations:
     {}
     # kubernetes.io/ingress.class: postgres
     # kubernetes.io/tls-acme: "true"
+  # If tls support required, create a secret with cert and key
+  # Refer: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
 
-replicaCount: 1
-
 global:
+  # backendReplicaCount decides the replica count for rudder backend and postgresql containers
+  backendReplicaCount: 2
   imagePullSecrets: []
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
@@ -50,9 +51,14 @@ backend:
     # limits:
     #   cpu: 100m
     #   memory: 128Mi
-    requests:
+    #requests:
       # cpu: 100m
-      memory: 2048Mi
+      # memory: 2048Mi
+  resources:
+    requests:
+      memory: 2560Mi
+    limits:
+      memory: 5120Mi
 
   nodeSelector: {}
 
@@ -72,12 +78,14 @@ backend:
       value: "https://api.rudderlabs.com"
     - name: CONFIG_PATH
       value: "/etc/rudderstack/config.toml"
-    - name: RUDDER_TMPDIR
-      value: "/data/rudderstack"
     - name: AWS_ACCESS_KEY_ID
       value: "Add your aws key id here"
     - name: AWS_SECRET_ACCESS_KEY
-      value: "Add your aws secret access key here"
+    value: "Add your aws access secret here"
+    - name: BUGSNAG_KEY
+      value: "3669852453c688bb50a0a2d27bf0ee58"
+    - name: RUDDER_TMPDIR
+      value: "/data/rudderstack"
     - name: GOOGLE_APPLICATION_CREDENTIALS
       value: "/etc/rudderstack/google-application-credentials.json"
     - name: INSTANCE_NAME
@@ -86,14 +94,21 @@ backend:
           fieldPath: metadata.name
 
 transformer:
+  replicaCount: 1
   service:
     port: 9090
   image:
     repository: rudderlabs/rudder-transformer
     version: latest
     pullPolicy: Always
+  resources:
+    requests:
+      memory: 256Mi
+    limits:
+      memory: 768Mi
 
 postgresql:
+  nameOverride: "rudderstack-postgresql"
   postgresqlPostgresPassword: "password"
   postgresqlUsername: rudder
   postgresqlPassword: password
@@ -102,21 +117,20 @@ postgresql:
   imagePullPolicy: IfNotPresent
   image:
     repository: postgres
-    version: "11-alpine"
+    tag: "11-alpine"
     pullPolicy: IfNotPresent
-  config:
-    mountPath: "/etc/postgresql"
   persistence:
-    mountPath: "/data/postgresql"
-    accessModes:
-    - ReadWriteOnce
     size: 100Gi
-    annotations: {}
+  replication:
+    enabled: false
   service:
+    type: "ClusterIP"
     port: 5432
   resources:
     requests:
-      memory: 1024Mi
+      memory: 2048Mi
+    limits:
+      memory: 4096Mi
 
 
   
@@ -131,9 +145,9 @@ statsd:
     mountPath: "/etc/statsd"
   resources:
     requests:
-      memory: 512Mi
+      memory: 128Mi
     limits:
-      memory: 800Mi
+      memory: 256Mi
   
 
 affinity: {}
