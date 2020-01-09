@@ -1,6 +1,9 @@
 # Contains the configuration for the whole server
 # Dont set secrets, passwords, api_keys etc. in this file. Use '.env' file for that
 
+# Documentation for tuning the parameters can be found here
+# https://docs.rudderlabs.com/administrators-guide/config-parameters
+
 maxProcess = 12 # Max number of cpu process to be used by go runtime
 gwDBRetention = 0
 routerDBRetention = 0
