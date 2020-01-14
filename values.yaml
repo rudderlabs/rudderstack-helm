@@ -13,8 +13,8 @@
 ingress:
   enabled: true
   annotations:
-    {}
-    # kubernetes.io/ingress.class: postgres
+    # kubernetes.io/ingress.class: alb
+    kubernetes.io/ingress.class: gce
     # kubernetes.io/tls-acme: "true"
   # If tls support required, create a secret with cert and key
   # Refer: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
@@ -81,7 +81,7 @@ backend:
     - name: AWS_ACCESS_KEY_ID
       value: "Add your aws key id here"
     - name: AWS_SECRET_ACCESS_KEY
-    value: "Add your aws access secret here"
+      value: "Add your aws access secret here"
     - name: BUGSNAG_KEY
       value: "3669852453c688bb50a0a2d27bf0ee58"
     - name: RUDDER_TMPDIR
