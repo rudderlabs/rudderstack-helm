@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: rudderlabs/rudder-transformer
-  version: v0.1.2
+  version: latest
   pullPolicy: IfNotPresent
 
 nameOverride: "rudderstack"
