@@ -38,7 +38,7 @@ global:
 backend:
   image:
     repository: rudderlabs/rudder-server
-    version: latest
+    version: v0.1.1
     pullPolicy: Always
   service:
     type: NodePort
