@@ -1,8 +1,14 @@
 {{- if .Values.ingress.enabled }}
-  NOTE: It may take a few minutes for the URL to be available.
-  Data plane URL:
-  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hostName }}
-  Check http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hostName }}/health to see the status
+  NOTE: It may take a few minutes for the URL to be available. 
+    You can watch the status of it by running 'kubectl get ingress {{ include "rudderstack.fullname" . }} -w'
+ 
+  Execute the following commands for Data plane URL:
+    ##########################
+    export SERVER_IP=`kubectl get ingress {{ include "rudderstack.fullname" . }} -o jsonpath="{.status.loadBalancer.ingress[0].ip}"`
+    echo "Data plane URL: http{{ if $.Values.ingress.tls }}s{{ end }}://$SERVER_IP"
+    #########################
+
+  Check <Data plane url>/health to see the status
 {{- else if contains "NodePort" .Values.service.type }}
   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "rudderstack.fullname" . }})
   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
