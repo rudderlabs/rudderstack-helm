@@ -36,7 +36,7 @@ The command deploys Rudderstack on the default Kubernetes cluster configured wit
 To update configuration or version of the images used, change the configuration and run:
 
 ```bash
-$ helm upgrade my-release ./
+$ helm upgrade my-release ./ --set rudderWorkspaceToken="<workspace token from the dashboard>"
 ```
 
 ## Uninstalling the Chart
