@@ -117,6 +117,11 @@ Optional Variables:
 
   automaticConfigReload: whether to watch the config file and reload it when it
                          changes. The default is true. Set this to false to disable.
+
+  datadogApiKey: "your_api_key" 
+  datadogPrefix: "your_prefix" 
+  datadogTags: ["your:tag", "another:tag"]  
+  backends: ["statsd-datadog-backend"]
 */
 {
   graphitePort: 2003,

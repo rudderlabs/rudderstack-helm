@@ -85,7 +85,7 @@ spec:
         args: ["/bin/sh","-c","/wait-for $JOBS_DB_HOST:$(JOBS_DB_PORT) -- /rudder-server"]
         
       - name: {{ include "statsd.name" . }}
-        image: "{{ .Values.statsd.image.repository }}@{{ .Values.statsd.image.digest }}"
+        image: "{{ .Values.statsd.image.repository }}:{{ .Values.statsd.image.tag }}"
         imagePullPolicy: {{ .Values.statsd.image.pullPolicy }}
         {{- if .Values.statsd.resources }}
         resources: 

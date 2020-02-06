@@ -146,8 +146,8 @@ statsd:
   service:
     port: 8125
   image:
-    repository: statsd/statsd
-    digest: "sha256:4acd7c1224c30ece075c38b167be1cc424cde33445c5b74a692087faf78b2cf8"
+    repository: rudderlabs/statsd
+    tag: "datadog"
     pullPolicy: IfNotPresent
   config:
     mountPath: "/etc/statsd"
