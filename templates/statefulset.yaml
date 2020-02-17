@@ -60,7 +60,7 @@ spec:
             {{- .Values.backend.extraEnvVars | toYaml | nindent 10 }}
           {{- end }}
           - name: CONFIG_BACKEND_TOKEN
-            value: {{ .Values.rudderWorkspaceToken }}      
+            value: {{ .Values.rudderWorkspaceToken }}
           - name: DEST_TRANSFORM_URL
             value: "http://{{ include "transformer.fullname" . }}:{{ .Values.transformer.service.port}}"
           - name: COMPUTE_DB_HOST_IN_K8S
@@ -83,16 +83,16 @@ spec:
             value: "localhost:{{ .Values.statsd.service.port }}"
         command: ["/docker-entrypoint.sh"]
         args: ["/bin/sh","-c","/wait-for $JOBS_DB_HOST:$(JOBS_DB_PORT) -- /rudder-server"]
-        
+
       - name: {{ include "statsd.name" . }}
         image: "{{ .Values.statsd.image.repository }}@{{ .Values.statsd.image.digest }}"
         imagePullPolicy: {{ .Values.statsd.image.pullPolicy }}
         {{- if .Values.statsd.resources }}
-        resources: 
+        resources:
           {{- toYaml .Values.statsd.resources | nindent 10 }}
         {{- end }}
-        command: ["node"]	
-        args: ["stats.js", "{{ .Values.statsd.config.mountPath }}/config.js"]	
+        command: ["node"]
+        args: ["stats.js", "{{ .Values.statsd.config.mountPath }}/config.js"]
         volumeMounts:
         - mountPath: {{ .Values.statsd.config.mountPath }}
           name: statsd-config-volume
@@ -111,7 +111,7 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-  
+
   volumeClaimTemplates:
     - metadata:
         name: {{ include "backend.name" . }}-data

@@ -7,13 +7,6 @@ PostgreSQL can be accessed via port {{ template "postgresql.port" . }} on the fo
     {{ template "postgresql.fullname" . }}-read.{{ .Release.Namespace }}.svc.cluster.local - Read only connection
 {{- end }}
 
-{{- if and .Values.postgresqlPostgresPassword (not (eq .Values.postgresqlUsername "postgres")) }}
-
-To get the password for "postgres" run:
-
-    export POSTGRES_ADMIN_PASSWORD=$(kubectl get secret --namespace {{ .Release.Namespace }} {{ template "postgresql.secretName" . }} -o jsonpath="{.data.postgresql-postgres-password}" | base64 --decode)
-{{- end }}
-
 To get the password for "{{ template "postgresql.username" . }}" run:
 
     export POSTGRES_PASSWORD=$(kubectl get secret --namespace {{ .Release.Namespace }} {{ template "postgresql.secretName" . }} -o jsonpath="{.data.postgresql-password}" | base64 --decode)
