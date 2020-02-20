@@ -159,49 +159,16 @@ telegraf_sidecar:
     mountPath: /etc/telegraf
     agent:
       interval: "10s"
-      round_interval: true
-      metric_batch_size: 1000
-      metric_buffer_limit: 10000
-      collection_jitter: "0s"
-      flush_interval: "10s"
-      flush_jitter: "0s"
-      precision: ""
-      debug: false
-      quiet: false
-      logfile: ""
-      hostname: "$HOSTNAME"
-      omit_hostname: false
-    processors:
-      - enum:
-          mapping:
-            field: "status"
-            dest: "status_code"
-            value_mappings:
-              healthy: 1
-              problem: 2
-              critical: 3
     outputs:
-      - health:
-          service_address: "http://:8888"
-          compares:
-            field: buffer_size
-            lt: 5000.0
-          contains:
-            field: buffer_size
-      - influxdb:
-          urls: []
+#      - influxdb:
+#          urls: []
 #            - "http://influxdb.monitoring.svc:8086"
-          database: "telegraf"
-    inputs:
-      - statsd:
-          service_address: ":8125"
-          percentiles:
-            - 50
-            - 90
-            - 95
-            - 99
-          metric_separator: "_"
-          allowed_pending_messages: 10000
-          percentile_limit: 100
+#          database: "telegraf"
+    statsd_percentiles:
+      - 50
+      - 90
+      - 95
+      - 99
+
 
 affinity: {}
