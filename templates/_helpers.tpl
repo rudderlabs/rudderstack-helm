@@ -67,12 +67,12 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- printf "%s-%s" (include "rudderstack.fullname" .) "backend" -}}
 {{- end -}}
 
-{{- define "statsd.name" -}}
-{{- printf "%s-%s" (include "rudderstack.name" .) "statsd" -}}
+{{- define "telegraf-sidecar.name" -}}
+{{- printf "%s-%s" (include "rudderstack.name" .) "telegraf-sidecar" -}}
 {{- end -}}
 
-{{- define "statsd.fullname" -}}
-{{- printf "%s-%s" (include "rudderstack.fullname" .) "statsd" -}}
+{{- define "telegraf-sidecar.fullname" -}}
+{{- printf "%s-%s" (include "rudderstack.fullname" .) "telegraf-sidecar" -}}
 {{- end -}}
 
 {{/*

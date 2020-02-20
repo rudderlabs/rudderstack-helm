@@ -27,10 +27,12 @@ spec:
             defaultMode: 420
             name: {{ include "backend.fullname" . }}-config
           name: backend-config-volume
-        - configMap:
-            defaultMode: 444
-            name: {{ include "statsd.fullname" . }}-config
-          name: statsd-config-volume
+        {{- if .Values.telegraf_sidecar.enabled}}
+        - name: telegraf
+          configMap:
+            defaultMode: 420
+            name: {{ include "telegraf-sidecar.fullname" . }}-config
+        {{- end }}
 
       containers:
       - name: {{ include "backend.name" . }}
@@ -79,38 +81,28 @@ spec:
             value: "{{ .Values.postgresql.postgresqlDatabase }}"
           - name: JOBS_DB_PASSWORD
             value: "{{ .Values.postgresql.postgresqlPassword }}"
-          - name: STATSD_SERVER_URL
-            value: "localhost:{{ .Values.statsd.service.port }}"
+          - name: KUBE_NAMESPACE
+            value: {{ .Release.Namespace }}
         command: ["/docker-entrypoint.sh"]
         args: ["/bin/sh","-c","/wait-for $JOBS_DB_HOST:$(JOBS_DB_PORT) -- /rudder-server"]
-
-      - name: {{ include "statsd.name" . }}
-        image: "{{ .Values.statsd.image.repository }}@{{ .Values.statsd.image.digest }}"
-        imagePullPolicy: {{ .Values.statsd.image.pullPolicy }}
-        {{- if .Values.statsd.resources }}
+        {{- if .Values.telegraf_sidecar.enabled}}
+      - name: {{ include "telegraf-sidecar.name" .}}
+        image: "{{ .Values.telegraf_sidecar.image.repo }}:{{ .Values.telegraf_sidecar.image.tag }}"
+        imagePullPolicy: {{ default "" .Values.telegraf_sidecar.image.pullPolicy | quote }}
+        env:
+          - name: KUBE_NAMESPACE
+            value: {{ .Release.Namespace }}
+        command: ["telegraf"]
+        args: ["--config", "{{.Values.telegraf_sidecar.config.mountPath}}/telegraf.conf"]
+        {{- if .Values.telegraf_sidecar.resources }}
         resources:
-          {{- toYaml .Values.statsd.resources | nindent 10 }}
+        {{- toYaml .Values.telegraf_sidecar.resources | nindent 10 }}
         {{- end }}
-        command: ["node"]
-        args: ["stats.js", "{{ .Values.statsd.config.mountPath }}/config.js"]
         volumeMounts:
-        - mountPath: {{ .Values.statsd.config.mountPath }}
-          name: statsd-config-volume
-        ports:
-        - name: statsd
-          containerPort: {{ .Values.statsd.service.port }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-    {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-    {{- end }}
-    {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-    {{- end }}
+          - name: telegraf
+            mountPath: {{.Values.telegraf_sidecar.config.mountPath}}
+  {{- end}}
+
 
   volumeClaimTemplates:
     - metadata:
