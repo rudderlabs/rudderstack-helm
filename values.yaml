@@ -141,6 +141,8 @@ postgresql:
 
 telegraf_sidecar:
   enabled: true
+  name: telegraf
+  version: 1.5.0
   nameOverride: "rudderstack"
   image:
     repo: "telegraf"
@@ -187,8 +189,8 @@ telegraf_sidecar:
           contains:
             field: buffer_size
       - influxdb:
-          urls:
-            - "http://influxdb.monitoring.svc:8086"
+          urls: []
+#            - "http://influxdb.monitoring.svc:8086"
           database: "telegraf"
     inputs:
       - statsd:
