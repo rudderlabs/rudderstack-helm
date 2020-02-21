@@ -86,12 +86,13 @@ $ helm install --name my-release \
 
 Installing this helm chart will deploy the following pods and containers in the configured cluster
 
-#### POD1:
-
+#### POD-A x 2:
 - Backend
+- Telegraf
+
+#### POD-B x 2:
 - Postgres
-- Statsd server
 
-#### POD2:
 
+#### POD-C:
 - Transformer
