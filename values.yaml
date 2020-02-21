@@ -139,22 +139,36 @@ postgresql:
     limits:
       memory: 4096Mi
 
-
-
-statsd:
-  service:
-    port: 8125
+telegraf_sidecar:
+  enabled: true
+  name: telegraf
+  version: 1.5.0
+  nameOverride: "rudderstack"
   image:
-    repository: statsd/statsd
-    digest: "sha256:4acd7c1224c30ece075c38b167be1cc424cde33445c5b74a692087faf78b2cf8"
+    repo: "telegraf"
+    tag: "1.12-alpine"
     pullPolicy: IfNotPresent
-  config:
-    mountPath: "/etc/statsd"
   resources:
     requests:
       memory: 128Mi
+      cpu: 100m
     limits:
-      memory: 256Mi
+      memory: 128Mi
+      cpu: 100m
+  config:
+    mountPath: /etc/telegraf
+    agent:
+      interval: "10s"
+    outputs:
+#      - influxdb:
+#          urls: []
+#            - "http://influxdb.monitoring.svc:8086"
+#          database: "telegraf"
+    statsd_percentiles:
+      - 50
+      - 90
+      - 95
+      - 99
 
 
 affinity: {}
