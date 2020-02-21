@@ -160,10 +160,10 @@ telegraf_sidecar:
     agent:
       interval: "10s"
     outputs:
-#      - influxdb:
-#          urls: []
+      - influxdb:
+          urls: []
 #            - "http://influxdb.monitoring.svc:8086"
-#          database: "telegraf"
+          database: "telegraf"
     statsd_percentiles:
       - 50
       - 90
