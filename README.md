@@ -86,13 +86,13 @@ $ helm install --name my-release \
 
 Installing this helm chart will deploy the following pods and containers in the configured cluster
 
-#### POD-A x 2:
-- Backend
-- Telegraf
+#### POD - <Release name>-rudderstack-0 :
+- rudderstack-backend
+- rudderstack-telegraf-sidecar
 
-#### POD-B x 2:
-- Postgres
+#### POD - <Release name>-rudderstack-postgresql-0 :
+- <Release name>-rudderstack-postgresql
 
 
-#### POD-C:
-- Transformer
+#### POD - <Release name>-rudderstack-transformer-xxxxxxxxxx-xxxxx:
+- transformer

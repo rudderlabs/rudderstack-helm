@@ -25,7 +25,7 @@ ingress:
 
 global:
   # backendReplicaCount decides the replica count for rudder backend and postgresql containers
-  backendReplicaCount: 2
+  backendReplicaCount: 1
   imagePullSecrets: []
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
@@ -38,22 +38,11 @@ global:
 backend:
   image:
     repository: rudderlabs/rudder-server
-    version: v0.1.3
+    version: v0.1.6
     pullPolicy: Always
   service:
     type: NodePort
     port: 8080
-  resources:
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
-    #requests:
-      # cpu: 100m
-      # memory: 2048Mi
   resources:
     requests:
       memory: 2560Mi
@@ -78,6 +67,7 @@ backend:
       value: "https://api.rudderlabs.com"
     - name: CONFIG_PATH
       value: "/etc/rudderstack/config.toml"
+    # These credentials are used for backing up successfully processed events  
     - name: AWS_ACCESS_KEY_ID
       value: "Add your aws key id here"
     - name: AWS_SECRET_ACCESS_KEY
@@ -87,7 +77,7 @@ backend:
     - name: RUDDER_TMPDIR
       value: "/data/rudderstack"
     - name: JOBS_BACKUP_STORAGE_PROVIDER
-      value: "GCS" # object storage provider to store backups eg. S3, AZURE_BLOB, MINIO
+      value: "S3" # object storage provider to store backups eg. S3, GCS, AZURE_BLOB, MINIO
     - name: JOBS_BACKUP_BUCKET
       value: "Add your bucket name to store backups of incoming events"
     - name: JOB_STATUS_BACKUP_BUCKET
@@ -107,7 +97,7 @@ transformer:
     port: 9090
   image:
     repository: rudderlabs/rudder-transformer
-    version: latest
+    version: v0.1.2
     pullPolicy: Always
   resources:
     requests:
