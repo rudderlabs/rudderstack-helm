@@ -56,22 +56,21 @@ The following table lists the configurable parameters of the Rudderstack chart a
 | Parameter                           | Description                                                                                         | Default                  |
 | ----------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------ |
 | `rudderWorkspaceToken`              | Workspace token from the dashboard                                                                  | `-`                      |
-| `backend.image.repository`          | Container image repository for the backend                                                          | `rudderlabs/backend`     |
-| `backend.image.tag`                 | Container image tag for the backend                                                                 | `0.1.1`                  |
-| `backend.image.imagePullPolicy`     | Container image pull policy for the backend image                                                   | `IfNotPresent`           |
+| `backend.image.repository`          | Container image repository for the backend                                                          | `rudderlabs/rudder-server`     |
+| `backend.image.version`                 | Container image tag for the backend                                                                 | `v0.1.6`                  |
+| `backend.image.pullPolicy`     | Container image pull policy for the backend image                                                   | `Always`           |
 | `transformer.image.repository`      | Container image repository for the transformer                                                      | `rudderlabs/transformer` |
-| `transformer.image.tag`             | Container image tag for the transformer                                                             | `0.1.1`                  |
-| `transformer.image.imagePullPolicy` | Container image pull policy for the transformer image                                               | `IfNotPresent`           |
+| `transformer.image.version`             | Container image tag for the transformer                                                             | `v0.1.2`                  |
+| `transformer.image.pullPolicy` | Container image pull policy for the transformer image                                               | `Always`           |
 | `ingress.enabled`                   | If `true`, an ingress is created                                                                    | `true`                   |
-| `ingress.hostName`                  | Endpoint of rudderstack backend. This is the dataplane url where you send events                    | ``                       |
 | `ingress.tls`                       | A list of [ingress tls](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls) items | `[]`                     |
-| `backend.extraEnvVars`              | Extra environments variables to be used by the backend in the deployments                           | `[]`                     |
+| `backend.extraEnvVars`              | Extra environments variables to be used by the backend in the deployments                           | `Refer values.yaml file`                     |
 
 Each of these parameters can be changed in values.yaml. Or specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
 ```bash
 $ helm install --name my-release \
-  --set backend.image.tag=0.1.4 \
+  --set backend.image.version=0.1.4 \
   --set ingress.enabled=false \
   ./
 ```
@@ -79,20 +78,18 @@ $ helm install --name my-release \
 **Note:** Configuration specific to
 
 - Backend can be edited in [rudder-config.toml](https://docs.rudderlabs.com/administrators-guide/config-parameters).
-- Statsd client can be edited in statsd-config.js. Statsd server related info is **required** to collect stats.
 - Postgres can be edited in pg_hba.conf, postgresql.conf
 
 ## Components
 
 Installing this helm chart will deploy the following pods and containers in the configured cluster
 
-#### POD - <Release name>-rudderstack-0 :
+#### POD - {Release name}-rudderstack-0 :
 - rudderstack-backend
 - rudderstack-telegraf-sidecar
 
-#### POD - <Release name>-rudderstack-postgresql-0 :
-- <Release name>-rudderstack-postgresql
+#### POD - {Release name}-rudderstack-postgresql-0 :
+- {Release name}-rudderstack-postgresql
 
-
-#### POD - <Release name>-rudderstack-transformer-xxxxxxxxxx-xxxxx:
+#### POD - {Release name}-rudderstack-transformer-xxxxxxxxxx-xxxxx:
 - transformer
