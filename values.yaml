@@ -86,10 +86,6 @@ backend:
       value: "/etc/rudderstack/google-application-credentials.json"
     - name: LOG_LEVEL
       value: "INFO" # eg. DEBUG, ERROR
-    - name: INSTANCE_NAME
-      valueFrom:
-        fieldRef:
-          fieldPath: metadata.name
 
 transformer:
   replicaCount: 1

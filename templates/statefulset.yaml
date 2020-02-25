@@ -81,6 +81,10 @@ spec:
             value: "{{ .Values.postgresql.postgresqlDatabase }}"
           - name: JOBS_DB_PASSWORD
             value: "{{ .Values.postgresql.postgresqlPassword }}"
+          - name: INSTANCE_ID
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
           - name: KUBE_NAMESPACE
             value: {{ .Release.Namespace }}
         command: ["/docker-entrypoint.sh"]
