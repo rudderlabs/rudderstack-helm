@@ -63,6 +63,12 @@ spec:
           {{- end }}
           - name: CONFIG_BACKEND_TOKEN
             value: {{ .Values.rudderWorkspaceToken }}
+            {{- if .Values.backend.controlPlaneJSON }}
+          - name: RSERVER_BACKEND_CONFIG_CONFIG_FROM_FILE
+            value: "{{ .Values.backend.controlPlaneJSON }}"
+          - name:  RSERVER_BACKEND_CONFIG_CONFIG_JSONPATH
+            value: "{{ .Values.backend.config.mountPath }}/workspaceConfig.json"
+            {{- end}}
           - name: DEST_TRANSFORM_URL
             value: "http://{{ include "transformer.fullname" . }}:{{ .Values.transformer.service.port}}"
           - name: COMPUTE_DB_HOST_IN_K8S
