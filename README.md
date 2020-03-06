@@ -49,6 +49,8 @@ $ helm uninstall my-release
 
 This removes all the components created by this chart.
 
+## Open source Control Plane
+- if you are using open source control plane you need to set the value controlPlaneJSON to true in [values.yaml](values.yaml). which will read config from [workspaceConfig.json](./workspaceConfig.json) file
 ## Configuration
 
 The following table lists the configurable parameters of the Rudderstack chart and their default values.
@@ -64,7 +66,8 @@ The following table lists the configurable parameters of the Rudderstack chart a
 | `transformer.image.pullPolicy` | Container image pull policy for the transformer image                                               | `Always`           |
 | `ingress.enabled`                   | If `true`, an ingress is created                                                                    | `true`                   |
 | `ingress.tls`                       | A list of [ingress tls](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls) items | `[]`                     |
-| `backend.extraEnvVars`              | Extra environments variables to be used by the backend in the deployments                           | `Refer values.yaml file`                     |
+| `backend.extraEnvVars`              | Extra environments variables to be used by the backend in the deployments                           | `Refer values.yaml file` |
+|`controlPlaneJSON`                   | If `true`, backend will read config from the workspaceConfig.json file  |  `false` |
 
 Each of these parameters can be changed in values.yaml. Or specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
@@ -76,7 +79,6 @@ $ helm install --name my-release \
 ```
 
 **Note:** Configuration specific to
-
 - Backend can be edited in [rudder-config.toml](https://docs.rudderlabs.com/administrators-guide/config-parameters).
 - Postgres can be edited in pg_hba.conf, postgresql.conf
 
