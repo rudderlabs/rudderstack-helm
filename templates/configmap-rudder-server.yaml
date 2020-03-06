@@ -10,3 +10,7 @@ data:
 {{ .Files.Get "rudder-config.toml" | indent 4}}
   google-application-credentials.json: |-
 {{.Files.Get "rudder-google-application-credentials.json" | indent 4}}
+  {{- if .Values.backend.controlPlaneJSON}}
+  workspaceConfig.json: |-
+    {{.Files.Get "workspaceConfig.json" | indent 4}}
+  {{- end }}
