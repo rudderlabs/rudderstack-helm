@@ -50,7 +50,14 @@ $ helm uninstall my-release
 This removes all the components created by this chart.
 
 ## Open source Control Plane
-- if you are using open source control plane you need to set the value controlPlaneJSON to true in [values.yaml](values.yaml). which will read config from [workspaceConfig.json](./workspaceConfig.json) file
+ If you are using open source config-generator UI, you need to set the parameter controlPlaneJSON to true in values.yaml file. Export workspace-config from the config-generator and copy/paste the contents into workspaceConfig.json file.
+
+## GCP
+ If you are using google cloud storage or google big query for following cases, you have to replace the contents of the file [rudder-google-application-credentials.json](rudder-google-application-credentials.json) with your service account.
+ -  GCS as a destination
+ - GCS for dumping jobs
+ - Big Query as a warehouse destination.
+
 ## Configuration
 
 The following table lists the configurable parameters of the Rudderstack chart and their default values.
