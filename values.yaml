@@ -10,18 +10,6 @@
 # Please enter api token obtained from rudder dashboard below
 # rudderWorkspaceToken:
 
-ingress:
-  enabled: true
-  annotations:
-    # kubernetes.io/ingress.class: alb
-    kubernetes.io/ingress.class: gce
-    # kubernetes.io/tls-acme: "true"
-  # If tls support required, create a secret with cert and key
-  # Refer: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 
 global:
   # backendReplicaCount decides the replica count for rudder backend and postgresql containers
@@ -42,8 +30,9 @@ backend:
     pullPolicy: Always
   controlPlaneJSON: false
   service:
-    type: NodePort
-    port: 8080
+    type: LoadBalancer
+    port: 80
+    targetPort: 8080
   resources:
     requests:
       memory: 2560Mi
