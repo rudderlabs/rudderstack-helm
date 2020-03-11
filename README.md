@@ -54,7 +54,7 @@ This removes all the components created by this chart.
 
 ## GCP
  If you are using google cloud storage or google big query for following cases, you have to replace the contents of the file [rudder-google-application-credentials.json](rudder-google-application-credentials.json) with your service account.
- -  GCS as a destination
+ - GCS as a destination
  - GCS for dumping jobs
  - Big Query as a warehouse destination.
 
