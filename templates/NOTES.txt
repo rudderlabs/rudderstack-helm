@@ -1,24 +1,19 @@
-{{- if .Values.ingress.enabled }}
-  NOTE: It may take a few minutes for the URL to be available. 
-    You can watch the status of it by running 'kubectl get ingress {{ include "rudderstack.fullname" . }} -w'
- 
-  Execute the following commands for Data plane URL:
-    ##########################
-    export SERVER_IP=`kubectl get ingress {{ include "rudderstack.fullname" . }} -o jsonpath="{.status.loadBalancer.ingress[0].ip}"`
-    echo "Data plane URL: http{{ if $.Values.ingress.tls }}s{{ end }}://$SERVER_IP"
-    #########################
-
-  Check <Data plane url>/health to see the status
-{{- else if contains "NodePort" .Values.service.type }}
+{{- if contains "NodePort" .Values.backend.service.type }}
   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "rudderstack.fullname" . }})
   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
   echo http://$NODE_IP:$NODE_PORT
-{{- else if contains "LoadBalancer" .Values.service.type }}
-     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-           You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "rudderstack.fullname" . }}'
-  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "rudderstack.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
-  echo http://$SERVICE_IP:{{ .Values.service.port }}
-{{- else if contains "ClusterIP" .Values.service.type }}
+{{- else if contains "LoadBalancer" .Values.backend.service.type }}
+NOTE: It may take a few minutes for the URL to be available.
+    You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "rudderstack.fullname" . }}'
+
+  Execute the following commands for Data plane URL:
+    ##########################
+    export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "rudderstack.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+    echo "Data plane URL: http://$SERVICE_IP:{{ .Values.backend.service.port }}"
+    #########################
+
+  Check <Data plane url>/health to see the status
+{{- else if contains "ClusterIP" .Values.backend.service.type }}
   export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "rudderstack.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:80
