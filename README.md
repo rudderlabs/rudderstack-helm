@@ -49,6 +49,15 @@ $ helm uninstall my-release
 
 This removes all the components created by this chart.
 
+## Open source Control Plane
+ If you are using open source config-generator UI, you need to set the parameter controlPlaneJSON to true in values.yaml file. Export workspace-config from the config-generator and copy/paste the contents into workspaceConfig.json file.
+
+## GCP
+ If you are using google cloud storage or google big query for following cases, you have to replace the contents of the file [rudder-google-application-credentials.json](rudder-google-application-credentials.json) with your service account.
+ - GCS as a destination
+ - GCS for dumping jobs
+ - Big Query as a warehouse destination.
+
 ## Configuration
 
 The following table lists the configurable parameters of the Rudderstack chart and their default values.
@@ -64,7 +73,8 @@ The following table lists the configurable parameters of the Rudderstack chart a
 | `transformer.image.pullPolicy` | Container image pull policy for the transformer image                                               | `Always`           |
 | `ingress.enabled`                   | If `true`, an ingress is created                                                                    | `true`                   |
 | `ingress.tls`                       | A list of [ingress tls](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls) items | `[]`                     |
-| `backend.extraEnvVars`              | Extra environments variables to be used by the backend in the deployments                           | `Refer values.yaml file`                     |
+| `backend.extraEnvVars`              | Extra environments variables to be used by the backend in the deployments                           | `Refer values.yaml file` |
+|`controlPlaneJSON`                   | If `true`, backend will read config from the workspaceConfig.json file  |  `false` |
 
 Each of these parameters can be changed in values.yaml. Or specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
@@ -76,7 +86,6 @@ $ helm install --name my-release \
 ```
 
 **Note:** Configuration specific to
-
 - Backend can be edited in [rudder-config.toml](https://docs.rudderlabs.com/administrators-guide/config-parameters).
 - Postgres can be edited in pg_hba.conf, postgresql.conf
 
