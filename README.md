@@ -51,7 +51,7 @@ This removes all the components created by this chart.
 
 ## Open source Control Plane
  If you are using open source config-generator UI, you need to set the parameter controlPlaneJSON to true in values.yaml file. Export workspace-config from the config-generator and copy/paste the contents into workspaceConfig.json file.
-```
+```bash
 $ helm install my-release ./ --set backend.controlPlaneJSON=true
  ```
 
