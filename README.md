@@ -74,7 +74,7 @@ The following table lists the configurable parameters of the Rudderstack chart a
 | `ingress.enabled`                   | If `true`, an ingress is created                                                                    | `true`                   |
 | `ingress.tls`                       | A list of [ingress tls](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls) items | `[]`                     |
 | `backend.extraEnvVars`              | Extra environments variables to be used by the backend in the deployments                           | `Refer values.yaml file` |
-|`controlPlaneJSON`                   | If `true`, backend will read config from the workspaceConfig.json file  |  `false` |
+| `backend.controlPlaneJSON`                   | If `true`, backend will read config from the workspaceConfig.json file  |  `false` |
 
 Each of these parameters can be changed in values.yaml. Or specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
