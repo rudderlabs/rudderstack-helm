@@ -12,5 +12,5 @@ data:
 {{.Files.Get "rudder-google-application-credentials.json" | indent 4}}
   {{- if .Values.backend.controlPlaneJSON}}
   workspaceConfig.json: |-
-    {{.Files.Get "workspaceConfig.json" | indent 4}}
+{{.Files.Get "workspaceConfig.json" | indent 4}}
   {{- end }}
