@@ -74,8 +74,6 @@ The following table lists the configurable parameters of the Rudderstack chart a
 | `transformer.image.repository`      | Container image repository for the transformer                                                      | `rudderlabs/transformer` |
 | `transformer.image.version`             | Container image tag for the transformer. [Available versions](https://hub.docker.com/r/rudderlabs/rudder-transformer/tags)                                                            | `v0.1.2`                  |
 | `transformer.image.pullPolicy` | Container image pull policy for the transformer image                                               | `Always`           |
-| `ingress.enabled`                   | If `true`, an ingress is created                                                                    | `true`                   |
-| `ingress.tls`                       | A list of [ingress tls](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls) items | `[]`                     |
 | `backend.extraEnvVars`              | Extra environments variables to be used by the backend in the deployments                           | `Refer values.yaml file` |
 | `backend.controlPlaneJSON`                   | If `true`, backend will read config from the workspaceConfig.json file  |  `false` |
 
@@ -84,7 +82,6 @@ Each of these parameters can be changed in values.yaml. Or specify each paramete
 ```bash
 $ helm install --name my-release \
   --set backend.image.version=v0.1.6 \
-  --set ingress.enabled=false \
   ./
 ```
 
