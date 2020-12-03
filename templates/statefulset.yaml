@@ -65,8 +65,10 @@ spec:
           {{- if .Values.backend.extraEnvVars }}
             {{- .Values.backend.extraEnvVars | toYaml | nindent 10 }}
           {{- end }}
+          {{- if .Values.rudderWorkspaceToken }}
           - name: CONFIG_BACKEND_TOKEN
             value: {{ .Values.rudderWorkspaceToken }}
+          {{- end }}
             {{- if .Values.backend.controlPlaneJSON }}
           - name: RSERVER_BACKEND_CONFIG_CONFIG_FROM_FILE
             value: "{{ .Values.backend.controlPlaneJSON }}"
