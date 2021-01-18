@@ -54,11 +54,18 @@ spec:
           httpGet:
             path: /health
             port: {{ .Values.backend.service.targetPort }}
-          initialDelaySeconds: 120
+          initialDelaySeconds: {{- default 120 .Values.probes.liveness.initialDelaySeconds -}}
+          failureThreshold: {{- default 5 .Values.probes.liveness.failureThreshold -}}
+          successThreshold: {{- default 1 .Values.probes.liveness.successThreshold -}}
+          periodSeconds: {{- default 10 .Values.probes.liveness.periodSeconds -}}
         readinessProbe:
           httpGet:
             path: /health
             port: {{ .Values.backend.service.targetPort }}
+          failureThreshold: {{- default 5 .Values.probes.readiness.failureThreshold -}}
+          successThreshold: {{- default 1 .Values.probes.readiness.successThreshold -}}
+          initialDelaySeconds: {{- default 0 .Values.probes.readiness.initialDelaySeconds -}}
+          periodSeconds: {{- default 10 .Values.probes.readiness.periodSeconds -}}
         resources:
           {{- toYaml .Values.backend.resources | nindent 10 }}
         env:
