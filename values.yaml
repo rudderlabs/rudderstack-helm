@@ -25,6 +25,7 @@ global:
   affinity: {}
 
 backend:
+  probes: {}
   image:
     repository: rudderlabs/rudder-server
     version: latest

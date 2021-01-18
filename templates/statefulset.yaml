@@ -54,18 +54,18 @@ spec:
           httpGet:
             path: /health
             port: {{ .Values.backend.service.targetPort }}
-          initialDelaySeconds: {{- default 120 .Values.backend.probes.liveness.initialDelaySeconds -}}
-          failureThreshold: {{- default 5 .Values.backend.probes.liveness.failureThreshold -}}
-          successThreshold: {{- default 1 .Values.backend.probes.liveness.successThreshold -}}
-          periodSeconds: {{- default 10 .Values.backend.probes.liveness.periodSeconds -}}
+          initialDelaySeconds: {{ default 120 .Values.backend.probes.liveness.initialDelaySeconds }}
+          failureThreshold: {{ default 5 .Values.backend.probes.liveness.failureThreshold }}
+          successThreshold: {{ default 1 .Values.backend.probes.liveness.successThreshold }}
+          periodSeconds: {{ default 10 .Values.backend.probes.liveness.periodSeconds }}
         readinessProbe:
           httpGet:
             path: /health
             port: {{ .Values.backend.service.targetPort }}
-          failureThreshold: {{- default 5 .Values.backend.probes.readiness.failureThreshold -}}
-          successThreshold: {{- default 1 .Values.backend.probes.readiness.successThreshold -}}
-          initialDelaySeconds: {{- default 0 .Values.backend.probes.readiness.initialDelaySeconds -}}
-          periodSeconds: {{- default 10 .Values.backend.probes.readiness.periodSeconds -}}
+          failureThreshold: {{ default 5 .Values.backend.probes.readiness.failureThreshold }}
+          successThreshold: {{ default 1 .Values.backend.probes.readiness.successThreshold }}
+          initialDelaySeconds: {{ default 0 .Values.backend.probes.readiness.initialDelaySeconds }}
+          periodSeconds: {{ default 10 .Values.backend.probes.readiness.periodSeconds }}
         resources:
           {{- toYaml .Values.backend.resources | nindent 10 }}
         env:
