@@ -1,6 +1,8 @@
 # RudderStack Helm Chart
 
 [RudderStack](https://rudderlabs.com) is a platform for collecting, storing and routing customer event data to dozens of tools.
+This is released under
+under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 ## TL;DR;
 
