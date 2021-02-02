@@ -71,12 +71,6 @@ spec:
             {{- end}}
           - name: DEST_TRANSFORM_URL
             value: "http://{{ include "transformer.fullname" . }}:{{ .Values.transformer.service.port}}"
-          - name: COMPUTE_DB_HOST_IN_K8S
-            value: "true"
-          - name: POSTGRES_POD_NAME
-            value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}"
-          - name: POSTGRES_HEADLESS_SVC
-            value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}-headless"
           - name: JOBS_DB_HOST
             value: "This is expected to be set by docker entrypoint script"
           - name: JOBS_DB_USER
@@ -93,6 +87,14 @@ spec:
                 fieldPath: metadata.name
           - name: KUBE_NAMESPACE
             value: {{ .Release.Namespace }}
+          {{- if .Values.postgresql.enabled }}
+          - name: COMPUTE_DB_HOST_IN_K8S
+            value: "true"
+          - name: POSTGRES_POD_NAME
+            value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}"
+          - name: POSTGRES_HEADLESS_SVC
+            value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}-headless"
+          {{- end }}
         command: ["/docker-entrypoint.sh"]
         args: ["/bin/sh","-c","/wait-for $JOBS_DB_HOST:$(JOBS_DB_PORT) -- /rudder-server"]
         {{- if .Values.telegraf_sidecar.enabled}}

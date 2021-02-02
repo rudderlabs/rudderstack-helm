@@ -20,6 +20,10 @@ version: 0.1.0
 # incremented each time you make changes to the application.
 appVersion: 1.16.0
 
+dependencies:
+  - name: postgresql
+    condition: postgresql.enabled
+
 # WIP
 #dependencies: 
 #  - name: nginx-ingress
