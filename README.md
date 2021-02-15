@@ -1,8 +1,8 @@
-# RudderStack Helm Chart
+# What is RudderStack?
 
-[RudderStack](https://rudderlabs.com) is a platform for collecting, storing and routing customer event data to dozens of tools.
-This is released under
-under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+[RudderStack](https://rudderstack.com/) is a **customer data pipeline** tool for collecting, routing and processing data from your websites, apps, cloud tools, and data warehouse.
+
+More information on RudderStack can be found [here](https://github.com/rudderlabs/rudder-server).
 
 ## TL;DR;
 
@@ -14,14 +14,14 @@ $ helm install my-release ./ --set rudderWorkspaceToken="<workspace token from t
 
 ## Introduction
 
-This chart creates a Rudderstack deployment on a [Kubernetes](http://kubernetes.io) cluster
+The RudderStack Helm chart creates a Rudderstack deployment on a [Kubernetes](http://kubernetes.io) cluster
 using the [Helm](https://helm.sh) package manager.
 
 ## Prerequisites
 
 - Kubectl installed and connected to your kubernetes cluster
 - Helm installed
-- Workspace token from the [dashboard](https://app.rudderlabs.com). Set up your account and copy your workspace token from the top of the home page.
+- Workspace token from the [RudderStack dashboard](https://app.rudderstack.com). Set up your account and copy your workspace token from the top of the home page.
 
 ## Installing the Chart
 
@@ -51,17 +51,21 @@ $ helm uninstall my-release
 
 This removes all the components created by this chart.
 
-## Open source Control Plane
- If you are using open source config-generator UI, you need to set the parameter controlPlaneJSON to true in values.yaml file. Export workspace-config from the config-generator and copy/paste the contents into workspaceConfig.json file.
+## Open-source Control Plane
+
+If you are using open-source config-generator UI, you need to set the parameter `controlPlaneJSON` to `true` in the `values.yaml` file. Export workspace-config from the config-generator and copy/paste the contents into the `workspaceConfig.json` file.
+
 ```bash
 $ helm install my-release ./ --set backend.controlPlaneJSON=true
  ```
 
 ## GCP
- If you are using google cloud storage or google big query for following cases, you have to replace the contents of the file [rudder-google-application-credentials.json](rudder-google-application-credentials.json) with your service account.
+
+If you are using Google Cloud Storage or Google BigQuery for the following cases, you have to replace the contents of the file [rudder-google-application-credentials.json](rudder-google-application-credentials.json) with your service account:
+
  - GCS as a destination
  - GCS for dumping jobs
- - Big Query as a warehouse destination.
+ - BigQuery as a warehouse destination.
 
 ## Configuration
 
@@ -79,7 +83,7 @@ The following table lists the configurable parameters of the Rudderstack chart a
 | `backend.extraEnvVars`              | Extra environments variables to be used by the backend in the deployments                           | `Refer values.yaml file` |
 | `backend.controlPlaneJSON`                   | If `true`, backend will read config from the workspaceConfig.json file  |  `false` |
 
-Each of these parameters can be changed in values.yaml. Or specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
+Each of these parameters can be changed in `values.yaml`. Or specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example:
 
 ```bash
 $ helm install --name my-release \
@@ -87,13 +91,13 @@ $ helm install --name my-release \
   ./
 ```
 
-**Note:** Configuration specific to
+**Note:** Configuration specific to:
 - Backend can be edited in [rudder-config.toml](https://docs.rudderlabs.com/administrators-guide/config-parameters).
-- Postgres can be edited in pg_hba.conf, postgresql.conf
+- PostgreSQL can be edited in `pg_hba.conf`, `postgresql.conf`
 
 ## Components
 
-Installing this helm chart will deploy the following pods and containers in the configured cluster
+Installing this Helm chart will deploy the following pods and containers in the configured cluster:
 
 #### POD - {Release name}-rudderstack-0 :
 - rudderstack-backend
@@ -104,3 +108,7 @@ Installing this helm chart will deploy the following pods and containers in the 
 
 #### POD - {Release name}-rudderstack-transformer-xxxxxxxxxx-xxxxx:
 - transformer
+
+## Contact Us
+
+For any queries related to using the RudderStack Helm Chart, feel free to start a conversation on our [Slack](https://resources.rudderstack.com/join-rudderstack-slack) channel.
