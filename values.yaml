@@ -28,7 +28,7 @@ backend:
   probes: {}
   image:
     repository: rudderlabs/rudder-server
-    version: latest
+    version: "v0.1.9-rc.7"
     pullPolicy: Always
   controlPlaneJSON: false
   service:
@@ -91,7 +91,7 @@ transformer:
     port: 9090
   image:
     repository: rudderlabs/rudder-transformer
-    version: latest
+    version: "v0.1.5-rc.0"
     pullPolicy: Always
   resources:
     requests:
