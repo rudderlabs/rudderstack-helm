@@ -29,6 +29,11 @@ backend:
     version: 1-alpine
     pullPolicy: Always
   controlPlaneJSON: false
+  ingress:
+    enabled: false
+    tls: false
+    annotations:
+    hostname: "rudderstack.local"
   service:
     annotations:
       ## Refer https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer for more annotations
