@@ -34,6 +34,8 @@ backend:
     tls: false
     annotations: {}
     hostname: "rudderstack.local"
+    # optional override for tls secret name
+    # secretName: rudderstack-tls
   service:
     annotations:
       ## Refer https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer for more annotations
