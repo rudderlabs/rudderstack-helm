@@ -98,6 +98,7 @@ transformer:
       memory: 768Mi
 
 postgresql:
+  enabled: true
   nameOverride: "rudderstack-postgresql"
   postgresqlUsername: rudder
   postgresqlPassword: password

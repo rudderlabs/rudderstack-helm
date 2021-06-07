@@ -188,3 +188,26 @@ Return the appropriate apiVersion for statefulset.
     {{ end }}
 {{- end }}
 {{- end -}}
+
+
+{{/*
+Return the appropriate postgresql main hosts for statefulset.
+*/}}
+{{- define "postgresql.host.main" -}}
+{{- if .Values.postgresql.enabled -}}
+{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}
+{{- else -}}
+{{ .Values.postgresql.host.main }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the appropriate postgresql main hosts for statefulset.
+*/}}
+{{- define "postgresql.host.headless" -}}
+{{- if .Values.postgresql.enabled -}}
+{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}-headless
+{{- else -}}
+{{ .Values.postgresql.host.headless }}
+{{- end -}}
+{{- end -}}

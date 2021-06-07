@@ -71,12 +71,14 @@ spec:
             {{- end}}
           - name: DEST_TRANSFORM_URL
             value: "http://{{ include "transformer.fullname" . }}:{{ .Values.transformer.service.port}}"
+          {{- if .Values.postgresql.enabled }}
           - name: COMPUTE_DB_HOST_IN_K8S
             value: "true"
           - name: POSTGRES_POD_NAME
-            value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}"
+            value: "{{ include "postgresql.host.main" . }}"
           - name: POSTGRES_HEADLESS_SVC
-            value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}-headless"
+            value: "{{ include "postgresql.host.headless" . }}"
+          {{- end }}
           - name: JOBS_DB_HOST
             value: "This is expected to be set by docker entrypoint script"
           - name: JOBS_DB_USER
