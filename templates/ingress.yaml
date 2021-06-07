@@ -21,7 +21,10 @@ spec:
       http:
         paths:
           - path: /
+            pathType: Prefix
             backend:
-              serviceName: {{ include "rudderstack.fullname" . }}
-              servicePort: {{ .Values.backend.service.port }}
+              service:
+                name: {{ include "rudderstack.fullname" . }}
+                port:
+                  number: {{ .Values.backend.service.port }}
 {{- end -}}
