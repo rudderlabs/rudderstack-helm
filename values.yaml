@@ -24,7 +24,7 @@ global:
   storageClass: ""
 
 backend:
-  embeddedConfigGenerator: true
+  # embeddedConfigGenerator: true
   image:
     repository: rudderlabs/rudder-server
     version: 1-alpine

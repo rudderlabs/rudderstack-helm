@@ -9,7 +9,7 @@ global:
 image:
   repository: rudderlabs/rudder-config-generator
   version: config-serve-test
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart version.
   tag: ""
 

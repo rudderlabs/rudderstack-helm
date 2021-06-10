@@ -19,14 +19,16 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-        - configMap:
-            defaultMode: 420
-            name: {{ include "config-gen.fullname" . }}-config
-          name: config-volume
+        - name: config-gen-volume
+          persistentVolumeClaim:
+            claimName: config-gen-volume
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.version }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+          - mountPath: {{ .Values.persistence.mountPath }}
+            name: config-gen-volume
           ports:
           - name: config-gen
             containerPort: {{ .Values.service.targetPort }}
@@ -45,12 +47,12 @@ spec:
             {{- if .Values.extraEnvVars }}
               {{- .Values.extraEnvVars | toYaml | nindent 10 }}
             {{- end }}
-            - name: ENV_VAR_1
-              value: 'ENV_VAL_1'
+            - name: CONFIG_FOLDER
+              value: {{ .Values.persistence.mountPath }}
 
   volumeClaimTemplates:
     - metadata:
-        name: {{ include "config-gen.name" . }}-data
+        name: config-gen-volume
     {{- with .Values.persistence.annotations }}
       annotations:
       {{- range $key, $value := . }}
