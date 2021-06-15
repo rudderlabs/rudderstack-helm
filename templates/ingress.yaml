@@ -1,0 +1,30 @@
+{{- if .Values.backend.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "rudderstack.fullname" . }}
+  labels:
+    {{- include "rudderstack.labels" . | nindent 4 }}
+  annotations:
+  {{- with .Values.backend.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+{{- if .Values.backend.ingress.tls }}
+  tls:
+    - hosts:
+      - {{ .Values.backend.ingress.hostname | quote }}
+      secretName: {{ .Values.backend.ingress.secretName | default (printf "%s-tls" (include "rudderstack.fullname" .)) }}
+{{- end }}
+  rules:
+    - host: {{ .Values.backend.ingress.hostname }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "rudderstack.fullname" . }}
+                port:
+                  number: {{ .Values.backend.service.port }}
+{{- end -}}
