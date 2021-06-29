@@ -16,15 +16,9 @@ spec:
       - {{ .Values.backend.ingress.hostname | quote }}
       secretName: {{ .Values.backend.ingress.secretName | default (printf "%s-tls" (include "rudderstack.fullname" .)) }}
 {{- end }}
-  rules:
-    - host: {{ .Values.backend.ingress.hostname }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ include "rudderstack.fullname" . }}
-                port:
-                  number: {{ .Values.backend.service.port }}
+  defaultBackend:
+    service:
+      name: {{ include "rudderstack.fullname" . }}
+      port:
+        number: {{ .Values.backend.service.port }}
 {{- end -}}
