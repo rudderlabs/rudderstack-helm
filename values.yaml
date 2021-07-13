@@ -10,6 +10,10 @@
 # Please enter api token obtained from rudder dashboard below
 # rudderWorkspaceToken:
 
+gcpCredentialSecret:
+  enabled: false
+  jsonKeyFile: ""
+  mountPath: /etc/gcp
 
 global:
   # backendReplicaCount decides the replica count for rudder backend and postgresql containers

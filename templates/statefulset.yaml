@@ -33,7 +33,12 @@ spec:
             defaultMode: 420
             name: {{ include "telegraf-sidecar.fullname" . }}-config
         {{- end }}
-
+        {{- if .Values.gcpCredentialSecret.enabled }}
+        - name: google-application-credentials
+          secret:
+            defaultMode: 420
+            secretName: {{ include "rudderstack.fullname" . }}-gcp
+        {{- end }}
       containers:
       - name: {{ include "backend.name" . }}
         image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.version }}"
@@ -43,6 +48,10 @@ spec:
           name: backend-config-volume
         - mountPath: {{ .Values.backend.persistence.mountPath }}
           name: {{ include "backend.name" . }}-data
+        {{- if .Values.gcpCredentialSecret.enabled }}
+        - mountPath: {{ .Values.gcpCredentialSecret.mountPath }}
+          name: google-application-credentials
+        {{- end }}
         ports:
           - name: backend
             containerPort: {{ .Values.backend.service.targetPort }}
