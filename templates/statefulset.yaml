@@ -22,6 +22,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+      serviceAccountName: {{ .Values.backend.serviceAccount.name }}
       volumes:
         - configMap:
             defaultMode: 420

@@ -2,7 +2,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-
 # Deployment specific values for rudderstack.
 # Following values must be filled in for the deployment to succeed
 
@@ -44,7 +43,7 @@ backend:
     annotations:
       ## Refer https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer for more annotations
       service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
-      ## For enabling https on aws, 
+      ## For enabling https on aws,
       ## uncomment below line with acm managed certificate arn and change port value below to 443
       # service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:123456789012:certificate/12345678-1234-1234-1234-123456789012
     type: LoadBalancer
@@ -55,6 +54,9 @@ backend:
       memory: 2560Mi
     limits:
       memory: 5120Mi
+  serviceAccount:
+    create: false
+    name: default
 
   nodeSelector: {}
 
