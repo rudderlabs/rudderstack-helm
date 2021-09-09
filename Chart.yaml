@@ -32,3 +32,9 @@ appVersion: 1.16.0
 #    import-values: # (optional)
 #      - ImportValues holds the mapping of source values to parent key to be imported. Each item can be a string or pair of child/parent sublist items.
 #    alias: (optional) Alias usable alias to be used for the chart. Useful when you have to add the same chart multiple times
+
+dependencies:
+- condition: postgresql.enabled
+  name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 7.7.2

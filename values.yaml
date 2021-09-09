@@ -109,6 +109,7 @@ transformer:
       memory: 768Mi
 
 postgresql:
+  enabled: true
   nameOverride: "rudderstack-postgresql"
   postgresqlUsername: rudder
   postgresqlPassword: password
@@ -131,6 +132,19 @@ postgresql:
       memory: 2048Mi
     limits:
       memory: 4096Mi
+
+# Use this if you have external Postgresql database
+# in this case you should set postgresql.enabled to false above and enabled to true here
+# the postgresqlUsername role must have CREATEDB privilege
+# the postgresqlDatabase must exists and be owned by the postgresqlUsername role
+external_postgresql:
+  enabled: false
+  postgresqlHost: example.server
+  postgresqlUsername: rudder
+  postgresqlPassword: password
+  postgresqlDatabase: jobsdb
+  postgresqlPort: 5432
+  postgresqlSslMode: disable
 
 telegraf_sidecar:
   enabled: true

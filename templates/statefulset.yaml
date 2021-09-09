@@ -81,21 +81,49 @@ spec:
           - name: DEST_TRANSFORM_URL
             value: "http://{{ include "transformer.fullname" . }}:{{ .Values.transformer.service.port}}"
           - name: COMPUTE_DB_HOST_IN_K8S
+            {{- if .Values.external_postgresql.enabled }}
+            value: "false"
+            {{ else }}
             value: "true"
+            {{- end }}
           - name: POSTGRES_POD_NAME
             value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}"
           - name: POSTGRES_HEADLESS_SVC
             value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}-headless"
           - name: JOBS_DB_HOST
+            {{- if .Values.external_postgresql.enabled }}
+            value: "{{ .Values.external_postgresql.postgresqlHost }}"
+            {{ else }}
             value: "This is expected to be set by docker entrypoint script"
+            {{- end }}
           - name: JOBS_DB_USER
+            {{- if .Values.external_postgresql.enabled }}
+            value: "{{ .Values.external_postgresql.postgresqlUsername }}"
+            {{ else }}
             value: "{{ .Values.postgresql.postgresqlUsername }}"
+            {{- end }}
           - name: JOBS_DB_PORT
+            {{- if .Values.external_postgresql.enabled }}
+            value: "{{ .Values.external_postgresql.postgresqlPort }}"
+            {{ else }}
             value: "{{ .Values.postgresql.service.port }}"
+            {{- end }}
           - name: JOBS_DB_DB_NAME
+            {{- if .Values.external_postgresql.enabled }}
+            value: "{{ .Values.external_postgresql.postgresqlDatabase }}"
+            {{ else }}
             value: "{{ .Values.postgresql.postgresqlDatabase }}"
+            {{- end }}
           - name: JOBS_DB_PASSWORD
+            {{- if .Values.external_postgresql.enabled }}
+            value: "{{ .Values.external_postgresql.postgresqlPassword }}"
+            {{ else }}
             value: "{{ .Values.postgresql.postgresqlPassword }}"
+            {{- end }}
+          {{- if .Values.external_postgresql.enabled }}
+          - name: JOBS_DB_SSL_MODE
+            value: "{{ .Values.external_postgresql.postgresqlSslMode }}"
+          {{- end }}
           - name: INSTANCE_ID
             valueFrom:
               fieldRef:
