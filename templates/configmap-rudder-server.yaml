@@ -7,7 +7,7 @@ metadata:
     release: {{ .Release.Name | quote }}
 data:
   config.toml: |-
-{{ .Files.Get "rudder-config.toml" | indent 4}}
+{{ .Files.Get "rudder-config.yaml" | indent 4}}
   google-application-credentials.json: |-
 {{.Files.Get "rudder-google-application-credentials.json" | indent 4}}
   {{- if .Values.backend.controlPlaneJSON}}
