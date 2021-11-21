@@ -72,6 +72,10 @@ spec:
           {{- end }}
           - name: CONFIG_BACKEND_TOKEN
             value: {{ .Values.rudderWorkspaceToken }}
+            {{- if .Values.backend.embeddedConfigGenerator }}
+          - name: CONFIG_BACKEND_URL
+            value: http://{{ include "config-gen.fullname" . }}
+            {{- end}}
             {{- if .Values.backend.controlPlaneJSON }}
           - name: RSERVER_BACKEND_CONFIG_CONFIG_FROM_FILE
             value: "{{ .Values.backend.controlPlaneJSON }}"

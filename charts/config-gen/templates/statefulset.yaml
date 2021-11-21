@@ -1,0 +1,70 @@
+apiVersion: {{ include "statefulset.apiVersion" . }}
+kind: StatefulSet
+metadata:
+  name: {{ include "config-gen.fullname" . }}
+  labels:
+    {{- include "config-gen.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "config-gen.fullname" . }}
+  selector:
+    matchLabels:
+      {{- include "config-gen.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "config-gen.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: config-gen-volume
+          persistentVolumeClaim:
+            claimName: config-gen-volume
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.version }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+          - mountPath: {{ .Values.persistence.mountPath }}
+            name: config-gen-volume
+          ports:
+          - name: config-gen
+            containerPort: {{ .Values.service.targetPort }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.service.targetPort }}
+            initialDelaySeconds: 120
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.service.targetPort }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            {{- if .Values.extraEnvVars }}
+              {{- .Values.extraEnvVars | toYaml | nindent 10 }}
+            {{- end }}
+            - name: CONFIG_FOLDER
+              value: {{ .Values.persistence.mountPath }}
+
+  volumeClaimTemplates:
+    - metadata:
+        name: config-gen-volume
+    {{- with .Values.persistence.annotations }}
+      annotations:
+      {{- range $key, $value := . }}
+        {{ $key }}: {{ $value }}
+      {{- end }}
+    {{- end }}
+      spec:
+        storageClassName: {{ .Values.global.storageClass }}
+        accessModes:
+        {{- range .Values.persistence.accessModes }}
+         - {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+           storage: {{ .Values.persistence.size | quote }}

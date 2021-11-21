@@ -59,6 +59,12 @@ If you are using open-source config-generator UI, you need to set the parameter 
 $ helm install my-release ./ --set backend.controlPlaneJSON=true
  ```
 
+## Embedded Open-source control plane 
+Set the parameter `backend.embeddedConfigGenerator` to true in `values.yaml` file to embed open-source control plane. Click on save button to publish the config to the data plane.
+```
+helm install my-release ./ --set backend.embeddedConfigGenerator=true
+```
+
 ## GCP
 
 If you are using Google Cloud Storage or Google BigQuery for the following cases, you have to replace the contents of the file [rudder-google-application-credentials.json](rudder-google-application-credentials.json) with your service account:
