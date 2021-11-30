@@ -15,6 +15,9 @@ spec:
       labels:
         {{- include "rudderstack.selectorLabels" . | nindent 8 }}
       annotations:
+        {{- if not .Values.rudderWorkspaceTokenExistingSecret }}
+        checksum/rudder-workspace-token: {{ include (print $.Template.BasePath "/secret-rudder-token.yaml") . | sha256sum }}
+        {{- end }}
         checksum/rudder-config: {{ .Files.Get "rudder-config.yaml" | sha256sum }}
         checksum/rudder-bigquery-credentials: {{ .Files.Get "bigquery-credentials.json" | sha256sum }}
     spec:
@@ -71,7 +74,10 @@ spec:
             {{- .Values.backend.extraEnvVars | toYaml | nindent 10 }}
           {{- end }}
           - name: CONFIG_BACKEND_TOKEN
-            value: {{ .Values.rudderWorkspaceToken }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "rudderstack.rudderWorkspaceTokenSecretName" . }}
+                key: rudderWorkspaceToken
             {{- if .Values.backend.controlPlaneJSON }}
           - name: RSERVER_BACKEND_CONFIG_CONFIG_FROM_FILE
             value: "{{ .Values.backend.controlPlaneJSON }}"

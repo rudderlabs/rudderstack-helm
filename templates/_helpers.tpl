@@ -51,6 +51,13 @@ app.kubernetes.io/name: {{ include "rudderstack.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 
+{{/*
+Return secret name to be used based on provided values.
+*/}}
+{{- define "rudderstack.rudderWorkspaceTokenSecretName" -}}
+{{- default (include "rudderstack.fullname" .) .Values.rudderWorkspaceTokenExistingSecret -}}
+{{- end -}}
+
 {{- define "transformer.name" -}}
 {{- printf "%s-%s" (include "rudderstack.name" .) "transformer" -}}
 {{- end -}}

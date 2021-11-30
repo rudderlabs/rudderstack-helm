@@ -74,6 +74,7 @@ The following table lists the configurable parameters of the Rudderstack chart a
 | Parameter                           | Description                                                                                         | Default                  |
 | ----------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------ |
 | `rudderWorkspaceToken`              | Workspace token from the dashboard                                                                  | `-`                      |
+| `rudderWorkspaceTokenSecretName`    | Secret with workspace token (overrides `rudderWorkspaceToken`)                                                                 | `-`                      |
 | `backend.image.repository`          | Container image repository for the backend                                                          | `rudderlabs/rudder-server`     |
 | `backend.image.version`                 | Container image tag for the backend. [Available versions](https://hub.docker.com/r/rudderlabs/rudder-server/tags)                                                                 | `v0.1.6`                  |
 | `backend.image.pullPolicy`     | Container image pull policy for the backend image                                                   | `Always`           |
