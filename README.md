@@ -61,7 +61,7 @@ $ helm install my-release ./ --set backend.controlPlaneJSON=true
 
 ## GCP
 
-If you are using Google Cloud Storage or Google BigQuery for the following cases, you have to replace the contents of the file [rudder-google-application-credentials.json](rudder-google-application-credentials.json) with your service account:
+If you are using Google Cloud Storage or Google BigQuery for the following cases, you have to replace the contents of the file [rudder-google-application-credentials.json](charts/rudderstack/rudder-google-application-credentials.json) with your service account:
 
  - GCS as a destination
  - GCS for dumping jobs
