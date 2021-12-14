@@ -26,6 +26,17 @@ entries:
     urls:
     - https://github.com/afranzi/rudderstack-helm/releases/download/postgresql-7.7.2/postgresql-7.7.2.tgz
     version: 7.7.2
+  rudderstack:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-12-14T12:07:32.370476003Z"
+    description: A Helm chart for Kubernetes
+    digest: 942a28d750cc4589e350dd19399a27e100510234b3302ea01499f20ef475679e
+    name: rudderstack
+    type: application
+    urls:
+    - https://github.com/afranzi/rudderstack-helm/releases/download/rudderstack-0.3.0/rudderstack-0.3.0.tgz
+    version: 0.3.0
   transformer:
   - apiVersion: v2
     appVersion: 1.16.0
