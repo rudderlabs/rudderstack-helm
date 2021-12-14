@@ -1,0 +1,40 @@
+apiVersion: v1
+entries:
+  postgresql:
+  - apiVersion: v1
+    appVersion: 11.6.0
+    created: "2021-12-14T12:01:59.965146293Z"
+    description: Chart for PostgreSQL, an object-relational database management system (ORDBMS) with an emphasis on extensibility and on standards-compliance.
+    digest: e048b288021e974b5cc2c46b540fcf03b565faa52612ab4ecef7b77c6547cc80
+    home: https://www.postgresql.org/
+    icon: https://bitnami.com/assets/stacks/postgresql/img/postgresql-stack-110x117.png
+    keywords:
+    - postgresql
+    - postgres
+    - database
+    - sql
+    - replication
+    - cluster
+    maintainers:
+    - email: containers@bitnami.com
+      name: Bitnami
+    - email: cedric@desaintmartin.fr
+      name: desaintmartin
+    name: postgresql
+    sources:
+    - https://github.com/bitnami/bitnami-docker-postgresql
+    urls:
+    - https://github.com/afranzi/rudderstack-helm/releases/download/postgresql-7.7.2/postgresql-7.7.2.tgz
+    version: 7.7.2
+  transformer:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-12-14T12:02:00.070161955Z"
+    description: A Helm chart for Kubernetes
+    digest: 3c4e514c533b6d70f824014988b785af310d3f7753e47b41ac54c121cc4e1ca1
+    name: transformer
+    type: application
+    urls:
+    - https://github.com/afranzi/rudderstack-helm/releases/download/transformer-0.1.0/transformer-0.1.0.tgz
+    version: 0.1.0
+generated: "2021-12-14T12:01:59.819239036Z"
