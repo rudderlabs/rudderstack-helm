@@ -33,6 +33,7 @@ backend:
     version: 1-alpine
     pullPolicy: Always
   controlPlaneJSON: false
+  configMapName: rudderstack-backend-config
   ingress:
     enabled: false
     tls: false
