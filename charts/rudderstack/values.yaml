@@ -95,6 +95,7 @@ backend:
       value: "INFO" # eg. DEBUG, ERROR
 
 transformer:
+  enabled: true
   replicaCount: 1
   service:
     port: 9090
@@ -109,6 +110,7 @@ transformer:
       memory: 768Mi
 
 postgresql:
+  enabled: true
   nameOverride: "rudderstack-postgresql"
   postgresqlUsername: rudder
   postgresqlPassword: password
