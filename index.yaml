@@ -29,6 +29,25 @@ entries:
   rudderstack:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2021-12-14T13:30:57.542570101Z"
+    dependencies:
+    - condition: transformer.enabled
+      name: transformer
+      repository: file://../subcharts/transformer
+      version: 0.1.0
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: file://../subcharts/postgresql
+      version: 7.7.2
+    description: A Helm chart for Kubernetes
+    digest: 636ec1150a756e50af3637cfd2044b20cb71ab811d672df1898afcc5bc6bcb78
+    name: rudderstack
+    type: application
+    urls:
+    - https://github.com/afranzi/rudderstack-helm/releases/download/rudderstack-0.4.1/rudderstack-0.4.1.tgz
+    version: 0.4.1
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2021-12-14T12:17:05.186969981Z"
     description: A Helm chart for Kubernetes
     digest: d12436fb92ec7c653b2529f5d95fd130bc7ca06ec6ac07e04f8711eb6dcc3726
