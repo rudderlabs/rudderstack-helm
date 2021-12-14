@@ -27,7 +27,7 @@ spec:
             defaultMode: 420
             name: {{ include "backend.fullname" . }}-config
           name: backend-config-volume
-        {{- if .Values.telegraf_sidecar.enabled}}
+        {{- if .Values.telegraf_sidecar.enabled }}
         - name: telegraf
           configMap:
             defaultMode: 420
@@ -104,7 +104,7 @@ spec:
             value: {{ .Release.Namespace }}
         command: ["/docker-entrypoint.sh"]
         args: ["/bin/sh","-c","/wait-for $JOBS_DB_HOST:$(JOBS_DB_PORT) -- /rudder-server"]
-        {{- if .Values.telegraf_sidecar.enabled}}
+      {{- if .Values.telegraf_sidecar.enabled }}
       - name: {{ include "telegraf-sidecar.name" .}}
         image: "{{ .Values.telegraf_sidecar.image.repo }}:{{ .Values.telegraf_sidecar.image.tag }}"
         imagePullPolicy: {{ default "" .Values.telegraf_sidecar.image.pullPolicy | quote }}
@@ -120,7 +120,7 @@ spec:
         volumeMounts:
           - name: telegraf
             mountPath: {{.Values.telegraf_sidecar.config.mountPath}}
-  {{- end}}
+      {{- end }}
 
 
   volumeClaimTemplates:
