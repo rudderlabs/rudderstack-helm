@@ -18,10 +18,13 @@ spec:
         checksum/rudder-config: {{ .Files.Get "rudder-config.yaml" | sha256sum }}
         checksum/rudder-bigquery-credentials: {{ .Files.Get "bigquery-credentials.json" | sha256sum }}
     spec:
-    {{- with .Values.global.imagePullSecrets }}
+      {{- if .Values.serviceAccount.enabled }}
+      serviceAccountName: {{ default "default" .Values.serviceAccount.name }}
+      {{- end }}
+      {{- with .Values.global.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
-    {{- end }}
+      {{- end }}
       volumes:
         {{- if .Values.backend.configMapName }}
         - configMap:
@@ -45,9 +48,6 @@ spec:
       - name: {{ include "backend.name" . }}
         image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.version }}"
         imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
-        {{- if .Values.serviceAccount.enabled }}
-        serviceAccountName: {{ default "default" .Values.serviceAccount.name }}
-        {{- end }}
         volumeMounts:
         - mountPath: {{ .Values.backend.config.mountPath }}
           name: backend-config-volume
