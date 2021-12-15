@@ -45,6 +45,9 @@ spec:
       - name: {{ include "backend.name" . }}
         image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.version }}"
         imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+        {{- if .Values.serviceAccount.enabled }}
+        serviceAccountName: {{ default "default" .Values.serviceAccount.name }}
+        {{- end }}
         volumeMounts:
         - mountPath: {{ .Values.backend.config.mountPath }}
           name: backend-config-volume
