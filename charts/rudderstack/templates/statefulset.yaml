@@ -116,6 +116,9 @@ spec:
         env:
           - name: KUBE_NAMESPACE
             value: {{ .Release.Namespace }}
+          {{- if .Values.telegraf_sidecar.extraEnvVars }}
+            {{- .Values.telegraf_sidecar.extraEnvVars | toYaml | nindent 10 }}
+          {{- end }}
         command: ["telegraf"]
         args: ["--config", "{{.Values.telegraf_sidecar.config.mountPath}}/telegraf.conf"]
         {{- if .Values.telegraf_sidecar.resources }}
