@@ -153,7 +153,6 @@ Return PostgreSQL created database
 Get the readiness probe command
 */}}
 {{- define "postgresql.readinessProbeCommand" -}}
-- |
   pg_isready -U {{ include "postgresql.username" . | quote }} -d {{ (include "postgresql.database" .) | quote }} -h 127.0.0.1 -p {{ template "postgresql.port" . }}
 {{- end -}}
 

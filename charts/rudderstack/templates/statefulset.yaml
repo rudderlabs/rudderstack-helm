@@ -83,6 +83,8 @@ spec:
           - name:  RSERVER_BACKEND_CONFIG_CONFIG_JSONPATH
             value: "{{ .Values.backend.config.mountPath }}/workspaceConfig.json"
             {{- end}}
+          - name: COMPUTE_DB_HOST_IN_K8S
+            value: "false"
           - name: DEST_TRANSFORM_URL
             value: "http://{{ include "transformer.fullname" . }}:{{ .Values.transformer.service.port}}"
           - name: JOBS_DB_HOST
