@@ -7,6 +7,7 @@ metadata:
 spec:
   serviceName: {{ include "rudderstack.fullname" . }}
   replicas: {{ .Values.global.backendReplicaCount }}
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       {{- include "rudderstack.selectorLabels" . | nindent 6 }}

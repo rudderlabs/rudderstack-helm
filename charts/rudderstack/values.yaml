@@ -119,7 +119,7 @@ postgresql:
   username: rudder
   password: password
   database: jobsdb
-  host: postgresql
+  host: localhost
   port: 5432
   image:
     repository: postgres
