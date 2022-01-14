@@ -9,6 +9,10 @@
 # Please uncomment below lines and fill values accordingly.
 # Please enter api token obtained from rudder dashboard below
 # rudderWorkspaceToken:
+serviceAccount:
+  create: false
+  enabled: false
+  name: 'rudderstack'
 
 gcpCredentialSecret:
   enabled: false
@@ -112,28 +116,27 @@ transformer:
 
 postgresql:
   enabled: true
-  nameOverride: "rudderstack-postgresql"
-  postgresqlUsername: rudder
-  postgresqlPassword: password
-  postgresqlDatabase: jobsdb
-  postgresqlRunAsUser: 70
-  imagePullPolicy: IfNotPresent
+  username: rudder
+  password: password
+  database: jobsdb
+  host: postgresql
+  port: 5432
   image:
     repository: postgres
     tag: "11-alpine"
     pullPolicy: IfNotPresent
   persistence:
+    mountPath: /etc/postgresql
     size: 100Gi
-  replication:
-    enabled: false
-  service:
-    type: "ClusterIP"
-    port: 5432
+    accessModes:
+      - ReadWriteOnce
   resources:
     requests:
       memory: 2048Mi
+      cpu: 250m
     limits:
       memory: 4096Mi
+      cpu: 1000m
 
 telegraf_sidecar:
   enabled: true

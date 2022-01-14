@@ -85,22 +85,16 @@ spec:
             {{- end}}
           - name: DEST_TRANSFORM_URL
             value: "http://{{ include "transformer.fullname" . }}:{{ .Values.transformer.service.port}}"
-          - name: COMPUTE_DB_HOST_IN_K8S
-            value: "true"
-          - name: POSTGRES_POD_NAME
-            value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}"
-          - name: POSTGRES_HEADLESS_SVC
-            value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}-headless"
           - name: JOBS_DB_HOST
-            value: "This is expected to be set by docker entrypoint script"
+            value: "{{ .Values.postgresql.host }}"
           - name: JOBS_DB_USER
-            value: "{{ .Values.postgresql.postgresqlUsername }}"
+            value: "{{ .Values.postgresql.username }}"
           - name: JOBS_DB_PORT
-            value: "{{ .Values.postgresql.service.port }}"
+            value: "{{ .Values.postgresql.port }}"
           - name: JOBS_DB_DB_NAME
-            value: "{{ .Values.postgresql.postgresqlDatabase }}"
+            value: "{{ .Values.postgresql.database }}"
           - name: JOBS_DB_PASSWORD
-            value: "{{ .Values.postgresql.postgresqlPassword }}"
+            value: "{{ .Values.postgresql.password }}"
           - name: INSTANCE_ID
             valueFrom:
               fieldRef:
@@ -129,9 +123,73 @@ spec:
           - name: telegraf
             mountPath: {{.Values.telegraf_sidecar.config.mountPath}}
       {{- end }}
-
+      {{- if .Values.postgresql.enabled }}
+      - name: {{ include "postgresql.name" .}}
+        image: "{{ .Values.postgresql.image.repository }}:{{ .Values.postgresql.image.tag }}"
+        imagePullPolicy: {{ default "" .Values.postgresql.image.pullPolicy | quote }}
+        resources:
+          {{- toYaml .Values.postgresql.resources | nindent 10 }}
+        volumeMounts:
+          - name: {{ include "backend.name" . }}-postgresql-data
+            mountPath: {{ .Values.postgresql.persistence.mountPath }}
+        ports:
+          - name: postgresql
+            containerPort: {{ template "postgresql.port" . }}
+        env:
+          {{- if .Values.postgresql.extraEnvVars }}
+            {{- .Values.postgresql.extraEnvVars | toYaml | nindent 10 }}
+          {{- end }}
+          - name: PGDATA
+            value: "{{ .Values.postgresql.persistence.mountPath }}/pgdata"
+          - name: POSTGRES_DB
+            value: "{{ .Values.postgresql.database }}"
+          - name: POSTGRES_USER
+            value: "{{ .Values.postgresql.username }}"
+          - name: POSTGRES_PASSWORD
+            value: "{{ .Values.postgresql.password }}"
+        livenessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - exec pg_isready -U {{ include "postgresql.username" . | quote }} -d {{ (include "postgresql.database" .) | quote }} -h 127.0.0.1 -p {{ template "postgresql.port" . }}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 6
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - -e
+              {{- include "postgresql.readinessProbeCommand" . | nindent 16 }}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 6
+      {{ end }}
 
   volumeClaimTemplates:
+    - metadata:
+        name: {{ include "backend.name" . }}-postgresql-data
+      {{- with .Values.postgresql.persistence.annotations }}
+        annotations:
+        {{- range $key, $value := . }}
+          {{ $key }}: {{ $value }}
+        {{- end }}
+      {{- end }}
+      spec:
+        accessModes:
+        {{- range .Values.postgresql.persistence.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.postgresql.persistence.size | quote }}
+        {{ include "postgresql.storageClass" . }}
     - metadata:
         name: {{ include "backend.name" . }}-data
     {{- with .Values.backend.persistence.annotations }}
