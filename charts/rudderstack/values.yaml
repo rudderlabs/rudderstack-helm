@@ -137,6 +137,18 @@ postgresql:
     limits:
       memory: 4096Mi
       cpu: 1000m
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 6
+  readinessProbe:
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 6
 
 telegraf_sidecar:
   enabled: true
