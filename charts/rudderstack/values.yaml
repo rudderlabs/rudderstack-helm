@@ -32,6 +32,7 @@ global:
   storageClass: ""
 
 backend:
+  terminationGracePeriodSeconds: 60
   image:
     repository: rudderlabs/rudder-server
     version: 1-alpine

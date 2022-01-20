@@ -22,6 +22,9 @@ spec:
       {{- if .Values.serviceAccount.enabled }}
       serviceAccountName: {{ default "default" .Values.serviceAccount.name }}
       {{- end }}
+      {{- if .Values.backend.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.backend.terminationGracePeriodSeconds }}
+      {{- end }}
       {{- with .Values.global.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
