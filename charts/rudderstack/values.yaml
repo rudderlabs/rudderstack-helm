@@ -32,6 +32,8 @@ global:
   storageClass: ""
 
 backend:
+  # Use a bigger value than BatchRouter.uploadFreqInS allowing
+  # the server to flush all the pending data, usefull when HPA enabled.
   terminationGracePeriodSeconds: 60
   image:
     repository: rudderlabs/rudder-server

@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - DAT-3850/rudderstack-helm
 
 jobs:
   release:

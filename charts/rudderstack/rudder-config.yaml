@@ -115,7 +115,7 @@ Router:
 BatchRouter:
   mainLoopSleep: 2s
   jobQueryBatchSize: 100000
-  uploadFreq: 30s
+  uploadFreqInS: 30
   warehouseServiceMaxRetryTime: 3h
   noOfWorkers: 8
   maxFailedCountForJob: 128
