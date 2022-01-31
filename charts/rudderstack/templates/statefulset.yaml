@@ -88,7 +88,7 @@ spec:
             value: "{{ .Values.backend.config.mountPath }}/workspaceConfig.json"
             {{- end}}
           - name: COMPUTE_DB_HOST_IN_K8S
-            value: "false"
+            value: {{ include "postgresql.computeDBHost" . }}
           - name: DEST_TRANSFORM_URL
             value: "http://{{ include "transformer.fullname" . }}:{{ .Values.transformer.service.port}}"
           - name: JOBS_DB_HOST
@@ -129,7 +129,7 @@ spec:
           - name: telegraf
             mountPath: {{.Values.telegraf_sidecar.config.mountPath}}
       {{- end }}
-      {{- if .Values.postgresql.enabled }}
+      {{- if eq .Values.postgresql.mode "sidecar" }}
       - name: {{ include "postgresql.name" .}}
         image: "{{ .Values.postgresql.image.repository }}:{{ .Values.postgresql.image.tag }}"
         imagePullPolicy: {{ default "" .Values.postgresql.image.pullPolicy | quote }}
@@ -178,6 +178,7 @@ spec:
       {{ end }}
 
   volumeClaimTemplates:
+    {{- if eq .Values.postgresql.mode "sidecar" }}
     - metadata:
         name: {{ include "backend.name" . }}-postgresql-data
       {{- with .Values.postgresql.persistence.annotations }}
@@ -195,6 +196,7 @@ spec:
           requests:
             storage: {{ .Values.postgresql.persistence.size | quote }}
         {{ include "postgresql.storageClass" . }}
+    {{ end }}
     - metadata:
         name: {{ include "backend.name" . }}-data
     {{- with .Values.backend.persistence.annotations }}

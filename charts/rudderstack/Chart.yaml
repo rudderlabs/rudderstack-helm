@@ -25,3 +25,8 @@ dependencies:
     version: 0.1.0
     repository: file://../subcharts/transformer
     condition: transformer.enabled
+
+  - name: postgresql
+    version: 7.7.2
+    repository: file://../subcharts/postgresql
+    condition: postgresql.statefulset_enabled

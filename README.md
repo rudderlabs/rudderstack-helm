@@ -60,6 +60,28 @@ To run a dry-run to evaluate if the changes proposed would be applied properly w
 helm template ./ | kubectl apply --dry-run=client -f -
 ```
 
+## Postgres dependency
+We contemplate three options on having Postgres as a dependency. 
+- Deploying it as a **Sidecar** in the same stateful resource
+- Deploying a new Statefulset with Postgres.
+- Providing an external Postgres.
+
+### Sidecar mode
+To enable the sidecar mode, specify:
+```yaml
+postgresql:
+    mode: sidecar
+    statefulset_enabled: false
+```
+
+### Stateful mode
+To enable the sidecar mode, specify: 
+```yaml
+postgresql:
+    mode: statefulset
+    statefulset_enabled: true
+```
+
 ## Open-source Control Plane
 
 If you are using open-source config-generator UI, you need to set the parameter `controlPlaneJSON` to `true` in the `values.yaml` file. Export workspace-config from the config-generator and copy/paste the contents into the `workspaceConfig.json` file.

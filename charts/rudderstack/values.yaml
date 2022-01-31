@@ -118,7 +118,8 @@ transformer:
       memory: 768Mi
 
 postgresql:
-  enabled: true
+  mode: sidecar # sidecar | statefulset | external
+  statefulset_enabled: false
   username: rudder
   password: password
   database: jobsdb
@@ -133,6 +134,11 @@ postgresql:
     size: 100Gi
     accessModes:
       - ReadWriteOnce
+  replication:
+    enabled: false
+  service:
+    type: "ClusterIP"
+    port: 5432
   resources:
     requests:
       memory: 2048Mi

@@ -150,6 +150,18 @@ Return PostgreSQL created database
 {{- end -}}
 
 
+{{- define "postgresql.computeDBHost" -}}
+     {{- if (eq .Values.postgresql.mode "sidecar") -}}
+        {{- printf "false" -}}
+     {{- else -}}
+        {{- if (eq .Values.postgresql.mode "statefulset") -}}
+            {{- printf "true" -}}
+        {{- else -}}
+            {{- printf "false" -}}
+        {{- end -}}
+     {{- end -}}
+{{- end -}}
+
 {{/*telegraf helper functions */}}
 
 {{- define "telegraf.chart" -}}
