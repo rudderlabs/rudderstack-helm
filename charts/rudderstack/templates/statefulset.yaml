@@ -48,6 +48,10 @@ spec:
             defaultMode: 420
             secretName: {{ include "rudderstack.fullname" . }}-gcp
         {{- end }}
+        {{- if eq .Values.postgresql.mode "sidecar" }}
+        - name: {{ include "backend.name" . }}-postgresql-data
+          emptyDir: {}
+        {{- end }}
       containers:
       - name: {{ include "backend.name" . }}
         image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.version }}"
