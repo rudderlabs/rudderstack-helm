@@ -9,6 +9,10 @@
 # Please uncomment below lines and fill values accordingly.
 # Please enter api token obtained from rudder dashboard below
 # rudderWorkspaceToken:
+serviceAccount:
+  create: false
+  enabled: false
+  name: 'rudderstack'
 
 gcpCredentialSecret:
   enabled: false
@@ -28,11 +32,15 @@ global:
   storageClass: ""
 
 backend:
+  # Use a bigger value than BatchRouter.uploadFreqInS allowing
+  # the server to flush all the pending data, usefull when HPA enabled.
+  terminationGracePeriodSeconds: 60
   image:
     repository: rudderlabs/rudder-server
     version: 1-alpine
     pullPolicy: Always
   controlPlaneJSON: false
+  configMapName: rudderstack-backend-config
   ingress:
     enabled: false
     tls: false
@@ -95,6 +103,7 @@ backend:
       value: "INFO" # eg. DEBUG, ERROR
 
 transformer:
+  enabled: true
   replicaCount: 1
   service:
     port: 9090
@@ -109,18 +118,22 @@ transformer:
       memory: 768Mi
 
 postgresql:
-  nameOverride: "rudderstack-postgresql"
-  postgresqlUsername: rudder
-  postgresqlPassword: password
-  postgresqlDatabase: jobsdb
-  postgresqlRunAsUser: 70
-  imagePullPolicy: IfNotPresent
+  mode: sidecar # sidecar | statefulset | external
+  statefulset_enabled: false
+  username: rudder
+  password: password
+  database: jobsdb
+  host: localhost
+  port: 5432
   image:
     repository: postgres
     tag: "11-alpine"
     pullPolicy: IfNotPresent
   persistence:
+    mountPath: /etc/postgresql
     size: 100Gi
+    accessModes:
+      - ReadWriteOnce
   replication:
     enabled: false
   service:
@@ -129,8 +142,22 @@ postgresql:
   resources:
     requests:
       memory: 2048Mi
+      cpu: 250m
     limits:
       memory: 4096Mi
+      cpu: 1000m
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 6
+  readinessProbe:
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 6
 
 telegraf_sidecar:
   enabled: true

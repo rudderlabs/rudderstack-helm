@@ -8,7 +8,8 @@ More information on RudderStack can be found [here](https://github.com/rudderlab
 
 ```bash
 $ git clone git@github.com:rudderlabs/rudderstack-helm.git
-$ cd rudderstack-helm/
+$ cd rudderstack-helm/charts/rudderstack
+$ helm dependency build 
 $ helm install my-release ./ --set rudderWorkspaceToken="<workspace token from the dashboard>"
 ```
 
@@ -51,6 +52,36 @@ $ helm uninstall my-release
 
 This removes all the components created by this chart.
 
+## Developing the Chart
+
+To run a dry-run to evaluate if the changes proposed would be applied properly we can execute:
+
+```bash
+helm template ./ | kubectl apply --dry-run=client -f -
+```
+
+## Postgres dependency
+We contemplate three options on having Postgres as a dependency. 
+- Deploying it as a **Sidecar** in the same stateful resource
+- Deploying a new Statefulset with Postgres.
+- Providing an external Postgres.
+
+### Sidecar mode
+To enable the sidecar mode, specify:
+```yaml
+postgresql:
+    mode: sidecar
+    statefulset_enabled: false
+```
+
+### Stateful mode
+To enable the sidecar mode, specify: 
+```yaml
+postgresql:
+    mode: statefulset
+    statefulset_enabled: true
+```
+
 ## Open-source Control Plane
 
 If you are using open-source config-generator UI, you need to set the parameter `controlPlaneJSON` to `true` in the `values.yaml` file. Export workspace-config from the config-generator and copy/paste the contents into the `workspaceConfig.json` file.
@@ -59,9 +90,31 @@ If you are using open-source config-generator UI, you need to set the parameter 
 $ helm install my-release ./ --set backend.controlPlaneJSON=true
  ```
 
+## Extending the Chart
+
+Since we are publishing the Chart under the {{ TBC by the RudderStack team }} page. It's possible to extend this Chart 
+by adding it as a dependency into your own Chart, so there is no need to git clone this repo for deploying RudderStack
+open-source into your infrastructure.
+
+```yaml
+apiVersion: v2
+name: rudderstack
+description: Customer Data Pipeline tool for collecting, routing and processing data.
+maintainers:
+  - name: Data Platform
+    email: xxxx@xxxx.com
+version: 0.4.5
+appVersion: 1.16.0
+dependencies:
+  # https://github.com/rudderlabs/rudderstack-helm
+  - name: rudderstack
+    version: 0.4.5
+    repository: https://TBC.github.io/rudderstack-helm # To Be Confirmed by the RudderStack team
+```
+
 ## GCP
 
-If you are using Google Cloud Storage or Google BigQuery for the following cases, you have to replace the contents of the file [rudder-google-application-credentials.json](rudder-google-application-credentials.json) with your service account:
+If you are using Google Cloud Storage or Google BigQuery for the following cases, you have to replace the contents of the file [rudder-google-application-credentials.json](charts/rudderstack/rudder-google-application-credentials.json) with your service account:
 
  - GCS as a destination
  - GCS for dumping jobs
@@ -102,9 +155,7 @@ Installing this Helm chart will deploy the following pods and containers in the 
 #### POD - {Release name}-rudderstack-0 :
 - rudderstack-backend
 - rudderstack-telegraf-sidecar
-
-#### POD - {Release name}-rudderstack-postgresql-0 :
-- {Release name}-rudderstack-postgresql
+- rudderstack-postgresql-sidecar
 
 #### POD - {Release name}-rudderstack-transformer-xxxxxxxxxx-xxxxx:
 - transformer

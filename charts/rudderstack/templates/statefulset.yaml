@@ -7,6 +7,7 @@ metadata:
 spec:
   serviceName: {{ include "rudderstack.fullname" . }}
   replicas: {{ .Values.global.backendReplicaCount }}
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       {{- include "rudderstack.selectorLabels" . | nindent 6 }}
@@ -18,16 +19,24 @@ spec:
         checksum/rudder-config: {{ .Files.Get "rudder-config.yaml" | sha256sum }}
         checksum/rudder-bigquery-credentials: {{ .Files.Get "bigquery-credentials.json" | sha256sum }}
     spec:
-    {{- with .Values.global.imagePullSecrets }}
+      {{- if .Values.serviceAccount.enabled }}
+      serviceAccountName: {{ default "default" .Values.serviceAccount.name }}
+      {{- end }}
+      {{- if .Values.backend.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.backend.terminationGracePeriodSeconds }}
+      {{- end }}
+      {{- with .Values.global.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
-    {{- end }}
+      {{- end }}
       volumes:
+        {{- if .Values.backend.configMapName }}
         - configMap:
             defaultMode: 420
-            name: {{ include "backend.fullname" . }}-config
+            name: {{ .Values.backend.configMapName }}
           name: backend-config-volume
-        {{- if .Values.telegraf_sidecar.enabled}}
+        {{- end }}
+        {{- if .Values.telegraf_sidecar.enabled }}
         - name: telegraf
           configMap:
             defaultMode: 420
@@ -38,6 +47,10 @@ spec:
           secret:
             defaultMode: 420
             secretName: {{ include "rudderstack.fullname" . }}-gcp
+        {{- end }}
+        {{- if eq .Values.postgresql.mode "sidecar" }}
+        - name: {{ include "backend.name" . }}-postgresql-data
+          emptyDir: {}
         {{- end }}
       containers:
       - name: {{ include "backend.name" . }}
@@ -78,24 +91,20 @@ spec:
           - name:  RSERVER_BACKEND_CONFIG_CONFIG_JSONPATH
             value: "{{ .Values.backend.config.mountPath }}/workspaceConfig.json"
             {{- end}}
+          - name: COMPUTE_DB_HOST_IN_K8S
+            value: {{ include "postgresql.computeDBHost" . }}
           - name: DEST_TRANSFORM_URL
             value: "http://{{ include "transformer.fullname" . }}:{{ .Values.transformer.service.port}}"
-          - name: COMPUTE_DB_HOST_IN_K8S
-            value: "true"
-          - name: POSTGRES_POD_NAME
-            value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}"
-          - name: POSTGRES_HEADLESS_SVC
-            value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}-headless"
           - name: JOBS_DB_HOST
-            value: "This is expected to be set by docker entrypoint script"
+            value: "{{ .Values.postgresql.host }}"
           - name: JOBS_DB_USER
-            value: "{{ .Values.postgresql.postgresqlUsername }}"
+            value: "{{ .Values.postgresql.username }}"
           - name: JOBS_DB_PORT
-            value: "{{ .Values.postgresql.service.port }}"
+            value: "{{ .Values.postgresql.port }}"
           - name: JOBS_DB_DB_NAME
-            value: "{{ .Values.postgresql.postgresqlDatabase }}"
+            value: "{{ .Values.postgresql.database }}"
           - name: JOBS_DB_PASSWORD
-            value: "{{ .Values.postgresql.postgresqlPassword }}"
+            value: "{{ .Values.postgresql.password }}"
           - name: INSTANCE_ID
             valueFrom:
               fieldRef:
@@ -104,13 +113,16 @@ spec:
             value: {{ .Release.Namespace }}
         command: ["/docker-entrypoint.sh"]
         args: ["/bin/sh","-c","/wait-for $JOBS_DB_HOST:$(JOBS_DB_PORT) -- /rudder-server"]
-        {{- if .Values.telegraf_sidecar.enabled}}
+      {{- if .Values.telegraf_sidecar.enabled }}
       - name: {{ include "telegraf-sidecar.name" .}}
         image: "{{ .Values.telegraf_sidecar.image.repo }}:{{ .Values.telegraf_sidecar.image.tag }}"
         imagePullPolicy: {{ default "" .Values.telegraf_sidecar.image.pullPolicy | quote }}
         env:
           - name: KUBE_NAMESPACE
             value: {{ .Release.Namespace }}
+          {{- if .Values.telegraf_sidecar.extraEnvVars }}
+            {{- .Values.telegraf_sidecar.extraEnvVars | toYaml | nindent 10 }}
+          {{- end }}
         command: ["telegraf"]
         args: ["--config", "{{.Values.telegraf_sidecar.config.mountPath}}/telegraf.conf"]
         {{- if .Values.telegraf_sidecar.resources }}
@@ -120,10 +132,75 @@ spec:
         volumeMounts:
           - name: telegraf
             mountPath: {{.Values.telegraf_sidecar.config.mountPath}}
-  {{- end}}
-
+      {{- end }}
+      {{- if eq .Values.postgresql.mode "sidecar" }}
+      - name: {{ include "postgresql.name" .}}
+        image: "{{ .Values.postgresql.image.repository }}:{{ .Values.postgresql.image.tag }}"
+        imagePullPolicy: {{ default "" .Values.postgresql.image.pullPolicy | quote }}
+        resources:
+          {{- toYaml .Values.postgresql.resources | nindent 10 }}
+        volumeMounts:
+          - name: {{ include "backend.name" . }}-postgresql-data
+            mountPath: {{ .Values.postgresql.persistence.mountPath }}
+        ports:
+          - name: postgresql
+            containerPort: {{ template "postgresql.port" . }}
+        env:
+          {{- if .Values.postgresql.extraEnvVars }}
+            {{- .Values.postgresql.extraEnvVars | toYaml | nindent 10 }}
+          {{- end }}
+          - name: PGDATA
+            value: "{{ .Values.postgresql.persistence.mountPath }}/pgdata"
+          - name: POSTGRES_DB
+            value: "{{ .Values.postgresql.database }}"
+          - name: POSTGRES_USER
+            value: "{{ .Values.postgresql.username }}"
+          - name: POSTGRES_PASSWORD
+            value: "{{ .Values.postgresql.password }}"
+        livenessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - exec pg_isready -U {{ include "postgresql.username" . | quote }} -d {{ (include "postgresql.database" .) | quote }} -h 127.0.0.1 -p {{ template "postgresql.port" . }}
+          initialDelaySeconds: {{ .Values.postgresql.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.postgresql.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.postgresql.livenessProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.postgresql.livenessProbe.successThreshold }}
+          failureThreshold: {{ .Values.postgresql.livenessProbe.failureThreshold }}
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - exec pg_isready -U {{ include "postgresql.username" . | quote }} -d {{ (include "postgresql.database" .) | quote }} -h 127.0.0.1 -p {{ template "postgresql.port" . }}
+          initialDelaySeconds: {{ .Values.postgresql.readinessProbe.initialDelaySeconds }}
+          periodSeconds:  {{ .Values.postgresql.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.postgresql.readinessProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.postgresql.readinessProbe.successThreshold }}
+          failureThreshold: {{ .Values.postgresql.readinessProbe.failureThreshold }}
+      {{ end }}
 
   volumeClaimTemplates:
+    {{- if eq .Values.postgresql.mode "sidecar" }}
+    - metadata:
+        name: {{ include "backend.name" . }}-postgresql-data
+      {{- with .Values.postgresql.persistence.annotations }}
+        annotations:
+        {{- range $key, $value := . }}
+          {{ $key }}: {{ $value }}
+        {{- end }}
+      {{- end }}
+      spec:
+        accessModes:
+        {{- range .Values.postgresql.persistence.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.postgresql.persistence.size | quote }}
+        {{ include "postgresql.storageClass" . }}
+    {{ end }}
     - metadata:
         name: {{ include "backend.name" . }}-data
     {{- with .Values.backend.persistence.annotations }}
