@@ -182,25 +182,6 @@ spec:
       {{ end }}
 
   volumeClaimTemplates:
-    {{- if eq .Values.postgresql.mode "sidecar" }}
-    - metadata:
-        name: {{ include "backend.name" . }}-postgresql-data
-      {{- with .Values.postgresql.persistence.annotations }}
-        annotations:
-        {{- range $key, $value := . }}
-          {{ $key }}: {{ $value }}
-        {{- end }}
-      {{- end }}
-      spec:
-        accessModes:
-        {{- range .Values.postgresql.persistence.accessModes }}
-          - {{ . | quote }}
-        {{- end }}
-        resources:
-          requests:
-            storage: {{ .Values.postgresql.persistence.size | quote }}
-        {{ include "postgresql.storageClass" . }}
-    {{ end }}
     - metadata:
         name: {{ include "backend.name" . }}-data
     {{- with .Values.backend.persistence.annotations }}

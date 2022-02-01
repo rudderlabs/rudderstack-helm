@@ -143,9 +143,11 @@ postgresql:
     requests:
       memory: 2048Mi
       cpu: 250m
+      ephemeral-storage: "5Gi"
     limits:
       memory: 4096Mi
       cpu: 1000m
+      ephemeral-storage: "20Gi"
   livenessProbe:
     initialDelaySeconds: 30
     periodSeconds: 10
