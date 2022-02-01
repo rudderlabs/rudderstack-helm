@@ -152,12 +152,12 @@ Return PostgreSQL created database
 
 {{- define "postgresql.computeDBHost" -}}
      {{- if (eq .Values.postgresql.mode "sidecar") -}}
-        {{- printf "false" -}}
+        {{- printf "\"false\"" -}}
      {{- else -}}
         {{- if (eq .Values.postgresql.mode "statefulset") -}}
-            {{- printf "true" -}}
+            {{- printf "\"true\"" -}}
         {{- else -}}
-            {{- printf "false" -}}
+            {{- printf "\"false\"" -}}
         {{- end -}}
      {{- end -}}
 {{- end -}}
