@@ -83,14 +83,16 @@ spec:
           {{- if .Values.backend.extraEnvVars }}
             {{- .Values.backend.extraEnvVars | toYaml | nindent 10 }}
           {{- end }}
+          {{- if .Values.rudderWorkspaceToken }}
           - name: CONFIG_BACKEND_TOKEN
             value: {{ .Values.rudderWorkspaceToken }}
-            {{- if .Values.backend.controlPlaneJSON }}
+          {{- end }}
+          {{- if .Values.backend.controlPlaneJSON }}
           - name: RSERVER_BACKEND_CONFIG_CONFIG_FROM_FILE
             value: "{{ .Values.backend.controlPlaneJSON }}"
           - name:  RSERVER_BACKEND_CONFIG_CONFIG_JSONPATH
             value: "{{ .Values.backend.config.mountPath }}/workspaceConfig.json"
-            {{- end}}
+          {{- end}}
           - name: COMPUTE_DB_HOST_IN_K8S
             value: {{ include "postgresql.computeDBHost" . }}
           - name: DEST_TRANSFORM_URL
