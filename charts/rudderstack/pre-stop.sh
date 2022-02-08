@@ -30,7 +30,7 @@ while $HAS_PENDING_EVENTS ; do
 
     echo "3. Checking result..."
     echo "${STATSD_PREFIX}_pending_events:$TOTAL_PENDING_EVENTS|g" | nc -w 1 -u localhost 8125
-    if [ ${TOTAL_PENDING_EVENTS} -eq 0 ]; then
+    if [[ ${TOTAL_PENDING_EVENTS} -eq 0 ]]; then
        echo "4. No pending events"
        HAS_PENDING_EVENTS=false
     else
