@@ -13,4 +13,6 @@ data:
   {{- if .Values.backend.controlPlaneJSON}}
   workspaceConfig.json: |-
 {{.Files.Get "workspaceConfig.json" | indent 4}}
+  pre-stop.sh: |-
+{{.Files.Get "pre-stop.sh" | indent 4}}
   {{- end }}

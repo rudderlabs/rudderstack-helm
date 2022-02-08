@@ -115,6 +115,12 @@ spec:
             value: {{ .Release.Namespace }}
         command: ["/docker-entrypoint.sh"]
         args: ["/bin/sh","-c","/wait-for $JOBS_DB_HOST:$(JOBS_DB_PORT) -- /rudder-server"]
+        {{- if .Values.backend.controlPlaneJSON }}
+        lifecycle:
+          preStop:
+            exec:
+              command: [ "{{ .Values.backend.config.mountPath }}/pre-stop.sh" ]
+        {{- end }}
       {{- if .Values.telegraf_sidecar.enabled }}
       - name: {{ include "telegraf-sidecar.name" .}}
         image: "{{ .Values.telegraf_sidecar.image.repo }}:{{ .Values.telegraf_sidecar.image.tag }}"
