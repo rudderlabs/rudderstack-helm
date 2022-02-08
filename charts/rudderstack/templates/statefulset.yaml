@@ -36,6 +36,10 @@ spec:
             name: {{ .Values.backend.configMapName }}
           name: backend-config-volume
         {{- end }}
+        - configMap:
+            defaultMode: 420
+            name: {{ include "backend.fullname" . }}-scripts
+          name: backend-scripts-volume
         {{- if .Values.telegraf_sidecar.enabled }}
         - name: telegraf
           configMap:
@@ -59,6 +63,8 @@ spec:
         volumeMounts:
         - mountPath: {{ .Values.backend.config.mountPath }}
           name: backend-config-volume
+        - mountPath: {{ .Values.backend.scripts.mountPath }}
+          name: backend-scripts-volume
         - mountPath: {{ .Values.backend.persistence.mountPath }}
           name: {{ include "backend.name" . }}-data
         {{- if .Values.gcpCredentialSecret.enabled }}
@@ -119,7 +125,7 @@ spec:
         lifecycle:
           preStop:
             exec:
-              command: [ "{{ .Values.backend.config.mountPath }}/pre-stop.sh" ]
+              command: [ "{{ .Values.backend.scripts.mountPath }}/pre-stop.sh" ]
         {{- end }}
       {{- if .Values.telegraf_sidecar.enabled }}
       - name: {{ include "telegraf-sidecar.name" .}}

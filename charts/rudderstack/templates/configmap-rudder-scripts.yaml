@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "backend.fullname" . }}-scripts
+  labels:
+    app: {{ include "backend.name" . }}
+    release: {{ .Release.Name | quote }}
+data:
+  pre-stop.sh: |-
+{{.Files.Get "pre-stop.sh" | indent 4}}

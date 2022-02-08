@@ -76,6 +76,8 @@ backend:
 
   config:
     mountPath: "/etc/rudderstack"
+  scripts:
+    mountPath: "/etc/rudderstack/scripts"
 
   extraEnvVars:
     - name: CONFIG_BACKEND_URL
