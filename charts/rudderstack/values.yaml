@@ -30,6 +30,7 @@ global:
   ##   GKE, AWS & OpenStack)
   ##
   storageClass: ""
+  env: "dev"
 
 backend:
   # Use a bigger value than BatchRouter.uploadFreqInS allowing

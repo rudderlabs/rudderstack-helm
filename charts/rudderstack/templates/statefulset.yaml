@@ -134,6 +134,8 @@ spec:
         env:
           - name: KUBE_NAMESPACE
             value: {{ .Release.Namespace }}
+          - name: ENV
+            value: {{ .Values.global.env }}
           {{- if .Values.telegraf_sidecar.extraEnvVars }}
             {{- .Values.telegraf_sidecar.extraEnvVars | toYaml | nindent 10 }}
           {{- end }}

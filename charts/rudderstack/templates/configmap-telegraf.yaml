@@ -12,6 +12,7 @@ data:
   telegraf.conf: |+
     [global_tags]
     namespace = "${KUBE_NAMESPACE}"
+    env = "${ENV}"
     [agent]
     collection_jitter = "0s"
     debug = false
