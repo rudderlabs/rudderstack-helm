@@ -35,6 +35,9 @@ backend:
   # Use a bigger value than BatchRouter.uploadFreqInS allowing
   # the server to flush all the pending data, usefull when HPA enabled.
   terminationGracePeriodSeconds: 60
+  # Important when autoscaling down, giving time to the pre-stop.sh script
+  # to interact with postgres and telegraf sidecars
+  lifecycleSleepTime: 60
   image:
     repository: rudderlabs/rudder-server
     version: 1-alpine

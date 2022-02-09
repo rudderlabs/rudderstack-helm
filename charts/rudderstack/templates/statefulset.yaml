@@ -139,6 +139,10 @@ spec:
           {{- end }}
         command: ["telegraf"]
         args: ["--config", "{{.Values.telegraf_sidecar.config.mountPath}}/telegraf.conf"]
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "sleep {{ .Values.backend.lifecycleSleepTime }}"]
         {{- if .Values.telegraf_sidecar.resources }}
         resources:
         {{- toYaml .Values.telegraf_sidecar.resources | nindent 10 }}
@@ -193,6 +197,10 @@ spec:
           timeoutSeconds: {{ .Values.postgresql.readinessProbe.timeoutSeconds }}
           successThreshold: {{ .Values.postgresql.readinessProbe.successThreshold }}
           failureThreshold: {{ .Values.postgresql.readinessProbe.failureThreshold }}
+        lifecycle:
+          preStop:
+            exec:
+              command: [ "/bin/sh", "-c", "sleep {{ .Values.backend.lifecycleSleepTime }}" ]
       {{ end }}
 
   volumeClaimTemplates:
