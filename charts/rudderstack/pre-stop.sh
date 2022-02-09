@@ -45,3 +45,6 @@ echo "${STATSD_PREFIX}_done:1|c" | nc -w 1 -u localhost 8125
 END=$(date +%s.%N)
 PRE_STOP_DURATION_SEC=$(echo "$END - $START" | bc)
 echo "${STATSD_PREFIX}_time:${PRE_STOP_DURATION_SEC}|ms" | nc -w 1 -u localhost 8125
+
+# Giving time to Telegraf to forward pre-stop metrics
+sleep 60s

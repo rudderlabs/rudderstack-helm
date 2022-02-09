@@ -125,7 +125,7 @@ spec:
         lifecycle:
           preStop:
             exec:
-              command: [ "{{ .Values.backend.scripts.mountPath }}/pre-stop.sh" ]
+              command: ["/bin/sh", "-c", "{{ .Values.backend.scripts.mountPath }}/pre-stop.sh > /proc/1/fd/1"]
         {{- end }}
       {{- if .Values.telegraf_sidecar.enabled }}
       - name: {{ include "telegraf-sidecar.name" .}}
