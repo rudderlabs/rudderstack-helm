@@ -67,7 +67,19 @@ backend:
       memory: 2560Mi
     limits:
       memory: 5120Mi
-
+  hpa:
+    # if:
+    #   hpa.enabled: true
+    # then:
+    #   make sure to specify resources.limits.cpu & resources.requests.cpu
+    #   so HPA can work properly.
+    # caution:
+    #   enable it only if you are using the postgres sidecar approach
+    #   since each backend needs one dedicated db
+    enabled: false
+    minReplicas: 3
+    maxReplicas: 10
+    cpuTargetPercent: 70
   nodeSelector: {}
 
   persistence:
@@ -190,7 +202,7 @@ telegraf_sidecar:
     outputs:
       - influxdb:
           urls: []
-          #            - "http://influxdb.monitoring.svc:8086"
+          # - "http://influxdb.monitoring.svc:8086"
           database: "telegraf"
     statsd_percentiles:
       - 50
