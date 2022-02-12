@@ -16,6 +16,17 @@ service:
   type: ClusterIP
   # port: 9090
 
+hpa:
+  # if:
+  #   hpa.enabled: true
+  # then:
+  #   make sure to specify resources.limits.cpu & resources.requests.cpu
+  #   so HPA can work properly.
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  cpuTargetPercent: 70
+
 resources:
   {}
   # We usually recommend not to specify default resources and to leave this as a conscious

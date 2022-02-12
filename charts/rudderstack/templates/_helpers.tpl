@@ -75,6 +75,14 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- printf "%s-%s" (include "rudderstack.fullname" .) "telegraf-sidecar" -}}
 {{- end -}}
 
+{{- define "postgresql.name" -}}
+{{- printf "%s-%s" (include "rudderstack.name" .) "postgresql-sidecar" -}}
+{{- end -}}
+
+{{- define "postgresql.fullname" -}}
+{{- printf "%s-%s" (include "rudderstack.fullname" .) "postgresql-sidecar" -}}
+{{- end -}}
+
 {{/*
 Return the appropriate apiVersion for statefulset.
 */}}
@@ -87,6 +95,72 @@ Return the appropriate apiVersion for statefulset.
 {{- end -}}
 
 
+{{/*postgresql helper functions */}}
+
+{{/*
+Return  the proper Storage Class
+*/}}
+{{- define "postgresql.storageClass" -}}
+{{- if .Values.global -}}
+    {{- if .Values.global.storageClass -}}
+        {{- if (eq "-" .Values.global.storageClass) -}}
+            {{- printf "storageClassName: \"\"" -}}
+        {{- else }}
+            {{- printf "storageClassName: %s" .Values.global.storageClass -}}
+        {{- end -}}
+    {{- else -}}
+        {{- if .Values.postgresql.persistence.storageClass -}}
+              {{- if (eq "-" .Values.postgresql.persistence.storageClass) -}}
+                  {{- printf "storageClassName: \"\"" -}}
+              {{- else }}
+                  {{- printf "storageClassName: %s" .Values.postgresql.persistence.storageClass -}}
+              {{- end -}}
+        {{- end -}}
+    {{- end -}}
+{{- else -}}
+    {{- if .Values.postgresql.persistence.storageClass -}}
+        {{- if (eq "-" .Values.postgresql.persistence.storageClass) -}}
+            {{- printf "storageClassName: \"\"" -}}
+        {{- else }}
+            {{- printf "storageClassName: %s" .Values.postgresql.persistence.storageClass -}}
+        {{- end -}}
+    {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return PostgreSQL replication username
+*/}}
+{{- define "postgresql.username" -}}
+    {{- .Values.postgresql.username -}}
+{{- end -}}
+
+{{/*
+Return PostgreSQL port
+*/}}
+{{- define "postgresql.port" -}}
+    {{- .Values.postgresql.port -}}
+{{- end -}}
+
+{{/*
+Return PostgreSQL created database
+*/}}
+{{- define "postgresql.database" -}}
+    {{- .Values.postgresql.database -}}
+{{- end -}}
+
+
+{{- define "postgresql.computeDBHost" -}}
+     {{- if (eq .Values.postgresql.mode "sidecar") -}}
+        {{- printf "\"false\"" -}}
+     {{- else -}}
+        {{- if (eq .Values.postgresql.mode "statefulset") -}}
+            {{- printf "\"true\"" -}}
+        {{- else -}}
+            {{- printf "\"false\"" -}}
+        {{- end -}}
+     {{- end -}}
+{{- end -}}
 
 {{/*telegraf helper functions */}}
 
