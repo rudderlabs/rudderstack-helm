@@ -7,8 +7,9 @@
 # Following values must be filled in for the deployment to succeed
 
 # Please uncomment below lines and fill values accordingly.
-# Please enter api token obtained from rudder dashboard below
+# Please enter api token obtained from rudder dashboard below or specify existing secret, that contains rudderWorkspaceToken key
 # rudderWorkspaceToken:
+# rudderWorkspaceTokenExistingSecret:
 
 gcpCredentialSecret:
   enabled: false
