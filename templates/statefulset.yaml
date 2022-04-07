@@ -109,7 +109,7 @@ spec:
           - name: KUBE_NAMESPACE
             value: {{ .Release.Namespace }}
         command: ["/docker-entrypoint.sh"]
-        args: ["/bin/sh","-c","/wait-for $JOBS_DB_HOST:$(JOBS_DB_PORT) -- /rudder-server"]
+        args: ["/bin/sh","-c","/wait-for $JOBS_DB_HOST:$(JOBS_DB_PORT) {{ if eq (include "statsd.enabled" .) "true" -}} -- /wait-for -u {{ include "statsd.url" .}} {{- end }} -- {{include "backend.binary" .}} {{ .Values.backend.cliArgs }}"]
         {{- if .Values.telegraf_sidecar.enabled}}
       - name: {{ include "telegraf-sidecar.name" .}}
         image: "{{ .Values.telegraf_sidecar.image.repo }}:{{ .Values.telegraf_sidecar.image.tag }}"

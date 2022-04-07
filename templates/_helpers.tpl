@@ -93,6 +93,29 @@ Return the appropriate apiVersion for statefulset.
 {{- end -}}
 {{- end -}}
 
+{{- define "backend.binary" -}}
+{{- if .Values.backend.raceEnabled -}}
+/rudder-server-with-race
+{{- else -}}
+/rudder-server
+{{- end -}}
+{{- end -}}
+
+{{- define "statsd.enabled" -}}
+{{- if .Values.telegraf_sidecar.enabled -}}
+true
+{{- else -}}
+{{.Values.telegraf.enabled }}
+{{- end -}}
+{{- end -}}
+
+{{- define "statsd.url" -}}
+{{- if .Values.telegraf_sidecar.enabled -}}
+{{- printf "localhost:8125" }}
+{{- else -}}
+{{include "telegraf.fullname" .}}:{{.Values.telegraf.service.port }}
+{{- end -}}
+{{- end -}}
 
 
 {{/*telegraf helper functions */}}
