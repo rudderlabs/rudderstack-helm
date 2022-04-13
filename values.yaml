@@ -8,7 +8,7 @@
 
 # Please uncomment below lines and fill values accordingly.
 # Please enter api token obtained from rudder dashboard below or specify existing secret, that contains rudderWorkspaceToken key
-rudderWorkspaceToken: yhdkjfhdjfbd
+# rudderWorkspaceToken:
 # rudderWorkspaceTokenExistingSecret:
 
 gcpCredentialSecret:
