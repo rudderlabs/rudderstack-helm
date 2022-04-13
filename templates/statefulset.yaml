@@ -30,11 +30,13 @@ spec:
             defaultMode: 420
             name: {{ include "backend.fullname" . }}-config
           name: backend-config-volume
+        {{- if .Values.telegraf_sidecar }}
         {{- if .Values.telegraf_sidecar.enabled}}
         - name: telegraf
           configMap:
             defaultMode: 420
             name: {{ include "telegraf-sidecar.fullname" . }}-config
+        {{- end }}
         {{- end }}
         {{- if .Values.gcpCredentialSecret.enabled }}
         - name: google-application-credentials
@@ -109,7 +111,7 @@ spec:
           - name: KUBE_NAMESPACE
             value: {{ .Release.Namespace }}
         command: ["/docker-entrypoint.sh"]
-        args: ["/bin/sh","-c","/wait-for $JOBS_DB_HOST:$(JOBS_DB_PORT) {{ if eq (include "statsd.enabled" .) "true" -}} -- /wait-for -u {{ include "statsd.url" .}} {{- end }} -- {{include "backend.binary" .}} {{ .Values.backend.cliArgs }}"]
+        args: ["/bin/sh","-c","/wait-for $JOBS_DB_HOST:$(JOBS_DB_PORT) {{ if (include "statsd.enabled" .) -}} -- /wait-for -u {{ include "statsd.url" .}} {{- end }} -- {{include "backend.binary" .}} {{ .Values.backend.cliArgs }}"]
         {{- if .Values.telegraf_sidecar.enabled}}
       - name: {{ include "telegraf-sidecar.name" .}}
         image: "{{ .Values.telegraf_sidecar.image.repo }}:{{ .Values.telegraf_sidecar.image.tag }}"

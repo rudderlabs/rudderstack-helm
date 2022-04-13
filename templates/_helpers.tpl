@@ -102,14 +102,24 @@ Return the appropriate apiVersion for statefulset.
 {{- end -}}
 
 {{- define "statsd.enabled" -}}
-{{- if .Values.telegraf_sidecar.enabled -}}
-true
+{{- if .Values.telegraf_sidecar -}}
+{{- if .Values.telegraf_sidecar.enabled }}
+{{ .Values.telegraf_sidecar.enabled }}
+{{- end -}}
+{{- else -}}
+{{ fail "Telegraf sidecar block doesn't exist in values.yaml ." }}
 {{- end -}}
 {{- end -}}
 
 {{- define "statsd.url" -}}
+{{- if .Values.telegraf_sidecar -}}
 {{- if .Values.telegraf_sidecar.enabled -}}
 {{- printf "localhost:8125" }}
+{{- else -}}
+{{ fail "Sidecar Telegraf is not enabled. We can't deduce statsd url." }}
+{{- end -}}
+{{- else -}}
+{{ fail "Telegraf sidecar block doesn't exist in values.yaml . We can't deduce statsd url." }}
 {{- end -}}
 {{- end -}}
 
