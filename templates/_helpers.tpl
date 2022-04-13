@@ -93,14 +93,6 @@ Return the appropriate apiVersion for statefulset.
 {{- end -}}
 {{- end -}}
 
-{{- define "backend.binary" -}}
-{{- if .Values.backend.raceEnabled -}}
-/rudder-server-with-race
-{{- else -}}
-/rudder-server
-{{- end -}}
-{{- end -}}
-
 {{- define "statsd.enabled" -}}
 {{- if .Values.telegraf_sidecar -}}
 {{- if .Values.telegraf_sidecar.enabled }}
