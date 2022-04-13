@@ -1,7 +1,7 @@
+---
 # Default values for rudderstack.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-
 
 # Deployment specific values for rudderstack.
 # Following values must be filled in for the deployment to succeed
@@ -45,7 +45,7 @@ backend:
     annotations:
       ## Refer https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer for more annotations
       service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
-      ## For enabling https on aws, 
+      ## For enabling https on aws,
       ## uncomment below line with acm managed certificate arn and change port value below to 443
       # service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:123456789012:certificate/12345678-1234-1234-1234-123456789012
     type: LoadBalancer
@@ -110,6 +110,11 @@ transformer:
       memory: 768Mi
 
 postgresql:
+  # Enable connecting to external PostgreSQL DB instead of in-cluster db
+  external:
+    enabled: false
+    postgresqlHost: example.server
+    postgresqlSslMode: disable
   nameOverride: "rudderstack-postgresql"
   postgresqlUsername: rudder
   postgresqlPassword: password
@@ -165,3 +170,54 @@ telegraf_sidecar:
       - 99
 
 affinity: {}
+
+# Enable namespace creation
+namespace:
+  enabled: false
+  name: rudderstack
+  labels: {
+    key: value
+  }
+
+# Enable serviceAccount creation
+serviceAccount:
+  enabled: false
+  name: rudderstack
+
+# Enable virtualService for public gateway
+virtualService:
+  enabled: false
+  hosts: [
+    "rudderstack.example.com"
+  ]
+
+# Enable SSL certificate for public gateways
+ssl:
+  enabled: false
+  annotations: {
+    key: value
+  }
+  secretTemplate: {
+    annotations: {
+      key: value
+    }
+  }
+  organizationName: "Organization name"
+  duration:  2160h0m0s # 90d
+  renewBefore: 360h0m0s # 15d
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+    group: cert-manager.io
+
+# Enable Hashicorp Vault secret manager https://www.vaultproject.io
+vault:
+  enabled: false
+  rudderWorkspaceToken: "vault:secret/data/namespace/app/key"
+  annotations: {
+    key: value
+  }

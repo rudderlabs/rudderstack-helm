@@ -1,0 +1,46 @@
+{{- if .Values.virtualService.enabled }}
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  labels:
+    app: rudderstack
+  name: rudderstack-public
+  {{- if .Values.namespace.enabled }}
+  namespace: {{ .Values.namespace.name }}
+  {{- end }}
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - hosts:
+      {{ toYaml .Values.virtualService.hosts }}
+    port:
+      name: https
+      number: 443
+      protocol: HTTPS
+    tls:
+      credentialName: {{ .Release.Name }}-tls
+      mode: SIMPLE
+      minProtocolVersion: TLSV1_2
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: rudderstack-route
+  {{- if .Values.namespace.enabled }}
+  namespace: {{ .Values.namespace.name }}
+  {{- end }}
+spec:
+  hosts:
+    {{ toYaml .Values.virtualService.hosts }}
+  gateways:
+    - rudderstack-public
+  http:
+  - name: rudderstack
+    route:
+    - destination:
+        host: rudderstack.{{ .Values.namespace.enabled | ternary .Values.namespace.name "default" }}.svc.cluster.local
+        port:
+          number: 80
+{{- end }}

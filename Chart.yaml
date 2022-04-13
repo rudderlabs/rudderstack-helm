@@ -21,7 +21,7 @@ version: 0.4.0
 appVersion: 1.16.0
 
 # WIP
-#dependencies: 
+#dependencies:
 #  - name: nginx-ingress
 #    version: ~1.6.0
 #    repository: https://helm.nginx.com/stable

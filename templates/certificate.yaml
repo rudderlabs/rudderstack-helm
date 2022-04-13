@@ -1,0 +1,30 @@
+{{- if .Values.ssl.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Release.Name }}
+  annotations:
+    {{ toYaml .Values.ssl.annotations }}
+spec:
+  secretName: {{ .Release.Name }}-tls
+  secretTemplate:
+    {{ toYaml .Values.ssl.secretTemplate }}
+  duration: {{ .Values.ssl.duration }}
+  renewBefore: {{ .Values.ssl.renewBefore }}
+  privateKey:
+    algorithm: {{ .Values.ssl.privateKey.algorithm }}
+    encoding: {{ .Values.ssl.privateKey.encoding }}
+    size: {{ .Values.ssl.privateKey.size }}
+  subject:
+    organizations:
+      - {{ .Values.ssl.organizationName }}
+  usages:
+    - server auth
+    - client auth
+  dnsNames:
+    {{ toYaml .Values.virtualService.hosts }}
+  issuerRef:
+    name: {{ .Values.ssl.issuerRef.name }}
+    kind: {{ .Values.ssl.issuerRef.kind }}
+    group: {{ .Values.ssl.issuerRef.group }}
+{{- end }}
