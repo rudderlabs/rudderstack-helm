@@ -10,9 +10,10 @@ metadata:
 spec:
   secretName: {{ .Release.Name }}-tls
   secretTemplate:
-    {{- range $key, $value :=  .Values.ssl.secretTemplate.annotations }}
-    {{ $key }}: {{ $value }}
-    {{- end }}
+    annotations:
+      {{- range $key, $value :=  .Values.ssl.secretTemplate.annotations }}
+      {{ $key }}: {{ $value }}
+      {{- end }}
   duration: {{ .Values.ssl.duration }}
   renewBefore: {{ .Values.ssl.renewBefore }}
   privateKey:
