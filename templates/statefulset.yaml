@@ -6,7 +6,9 @@ metadata:
     {{- include "rudderstack.labels" . | nindent 4 }}
   {{- if .Values.vault.enabled }}
   annotations:
-    {{ toYaml .Values.vault.annotations }}
+    {{- range $key, $value :=  .Values.vault.annotations }}
+    {{ $key }}: {{ $value }}
+    {{- end }}
   {{- end}}
 spec:
   serviceName: {{ include "rudderstack.fullname" . }}
@@ -25,7 +27,9 @@ spec:
         checksum/rudder-config: {{ .Files.Get "rudder-config.yaml" | sha256sum }}
         checksum/rudder-bigquery-credentials: {{ .Files.Get "bigquery-credentials.json" | sha256sum }}
         {{- if .Values.vault.enabled }}
-        {{ toYaml .Values.vault.annotations }}
+        {{- range $key, $value :=  .Values.vault.annotations }}
+        {{ $key }}: {{ $value }}
+        {{- end }}
         {{- end}}
     spec:
     {{- with .Values.global.imagePullSecrets }}

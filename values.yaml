@@ -176,7 +176,8 @@ namespace:
   enabled: false
   name: rudderstack
   labels: {
-    key: value
+    key1: value,
+    key2: value
   }
 
 # Enable serviceAccount creation
@@ -195,11 +196,13 @@ virtualService:
 ssl:
   enabled: false
   annotations: {
-    key: value
+    key1: value,
+    key2: value
   }
   secretTemplate: {
     annotations: {
-      key: value
+      key1: value,
+      key2: value
     }
   }
   organizationName: "Organization name"
@@ -219,5 +222,6 @@ vault:
   enabled: false
   rudderWorkspaceToken: "vault:secret/data/namespace/app/key"
   annotations: {
-    key: value
+    key1: value,
+    key2: value
   }

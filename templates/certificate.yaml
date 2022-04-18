@@ -4,11 +4,15 @@ kind: Certificate
 metadata:
   name: {{ .Release.Name }}
   annotations:
-    {{ toYaml .Values.ssl.annotations }}
+    {{- range $key, $value :=  .Values.ssl.annotations }}
+    {{ $key }}: {{ $value }}
+    {{- end }}
 spec:
   secretName: {{ .Release.Name }}-tls
   secretTemplate:
-    {{ toYaml .Values.ssl.secretTemplate }}
+    {{- range $key, $value :=  .Values.ssl.secretTemplate.annotations }}
+    {{ $key }}: {{ $value }}
+    {{- end }}
   duration: {{ .Values.ssl.duration }}
   renewBefore: {{ .Values.ssl.renewBefore }}
   privateKey:
