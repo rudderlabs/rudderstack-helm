@@ -10,6 +10,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+  ingressClassName: {{ .Values.backend.ingress.class }}
 {{- if .Values.backend.ingress.tls }}
   tls:
     - hosts:
@@ -17,7 +18,6 @@ spec:
       secretName: {{ .Values.backend.ingress.secretName | default (printf "%s-tls" (include "rudderstack.fullname" .)) }}
 {{- end }}
   rules:
-    ingressClassName: {{ .Values.backend.ingress.class }}
     - host: {{ .Values.backend.ingress.hostname }}
       http:
         paths:
