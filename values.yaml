@@ -35,6 +35,7 @@ backend:
     pullPolicy: Always
   controlPlaneJSON: false
   ingress:
+    class: nginx
     enabled: false
     tls: false
     annotations: {}

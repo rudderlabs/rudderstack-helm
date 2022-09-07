@@ -17,6 +17,7 @@ spec:
       secretName: {{ .Values.backend.ingress.secretName | default (printf "%s-tls" (include "rudderstack.fullname" .)) }}
 {{- end }}
   rules:
+    ingressClassName: {{ .Values.backend.ingress.class }}
     - host: {{ .Values.backend.ingress.hostname }}
       http:
         paths:
