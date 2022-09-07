@@ -37,6 +37,7 @@ backend:
   ingress:
     enabled: false
     tls: false
+    class: nginx
     annotations: {}
     hostname: "rudderstack.local"
     # optional override for tls secret name
