@@ -4,6 +4,12 @@ metadata:
   name: {{ include "rudderstack.fullname" . }}
   labels:
     {{- include "rudderstack.labels" . | nindent 4 }}
+  {{- if .Values.vault.enabled }}
+  annotations:
+    {{- range $key, $value :=  .Values.vault.annotations }}
+    {{ $key }}: {{ $value }}
+    {{- end }}
+  {{- end}}
 spec:
   serviceName: {{ include "rudderstack.fullname" . }}
   replicas: {{ .Values.global.backendReplicaCount }}
@@ -20,11 +26,17 @@ spec:
         {{- end }}
         checksum/rudder-config: {{ .Files.Get "rudder-config.yaml" | sha256sum }}
         checksum/rudder-bigquery-credentials: {{ .Files.Get "bigquery-credentials.json" | sha256sum }}
+        {{- if .Values.vault.enabled }}
+        {{- range $key, $value :=  .Values.vault.annotations }}
+        {{ $key }}: {{ $value }}
+        {{- end }}
+        {{- end}}
     spec:
     {{- with .Values.global.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+      serviceAccountName: {{ .Values.serviceAccount.enabled | ternary .Values.serviceAccount.name "default" }}
       volumes:
         - configMap:
             defaultMode: 420
@@ -89,13 +101,13 @@ spec:
           - name: DEST_TRANSFORM_URL
             value: "http://{{ include "transformer.fullname" . }}:{{ .Values.transformer.service.port}}"
           - name: COMPUTE_DB_HOST_IN_K8S
-            value: "true"
+            value: "{{ .Values.postgresql.external.enabled | ternary "false" "true" }}"
           - name: POSTGRES_POD_NAME
             value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}"
           - name: POSTGRES_HEADLESS_SVC
             value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}-headless"
           - name: JOBS_DB_HOST
-            value: "This is expected to be set by docker entrypoint script"
+            value: "{{ .Values.postgresql.external.enabled | ternary .Values.postgresql.external.postgresqlHost "This is expected to be set by docker entrypoint script" }}"
           - name: JOBS_DB_USER
             value: "{{ .Values.postgresql.postgresqlUsername }}"
           - name: JOBS_DB_PORT
@@ -104,6 +116,10 @@ spec:
             value: "{{ .Values.postgresql.postgresqlDatabase }}"
           - name: JOBS_DB_PASSWORD
             value: "{{ .Values.postgresql.postgresqlPassword }}"
+          {{- if .Values.postgresql.external.enabled }}
+          - name: JOBS_DB_SSL_MODE
+            value: "{{ .Values.postgresql.external.postgresqlSslMode }}"
+          {{- end }}
           - name: INSTANCE_ID
             valueFrom:
               fieldRef:
