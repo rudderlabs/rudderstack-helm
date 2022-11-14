@@ -18,7 +18,7 @@ spec:
         {{- if not .Values.rudderWorkspaceTokenExistingSecret }}
         checksum/rudder-workspace-token: {{ include (print $.Template.BasePath "/secret-rudder-token.yaml") . | sha256sum }}
         {{- end }}
-        checksum/rudder-config: {{ .Files.Get "rudder-config.yaml" | sha256sum }}
+        checksum/rudder-config: {{ .Values.backend.rudderConfig | sha256sum }}
         checksum/rudder-bigquery-credentials: {{ .Files.Get "bigquery-credentials.json" | sha256sum }}
     spec:
     {{- with .Values.global.imagePullSecrets }}
