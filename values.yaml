@@ -91,7 +91,7 @@ backend:
     - name: RUDDER_TMPDIR
       value: "/data/rudderstack"
     - name: JOBS_BACKUP_STORAGE_PROVIDER
-      value: "S3" # object storage provider to store backups eg. S3, GCS, AZURE_BLOB, MINIO
+      value: "S3"  # object storage provider to store backups eg. S3, GCS, AZURE_BLOB, MINIO
     - name: JOBS_BACKUP_BUCKET
       value: "Add your bucket name to store backups of incoming events"
     - name: JOB_STATUS_BACKUP_BUCKET
@@ -99,7 +99,7 @@ backend:
     - name: GOOGLE_APPLICATION_CREDENTIALS
       value: "/etc/rudderstack/google-application-credentials.json"
     - name: LOG_LEVEL
-      value: "INFO" # eg. DEBUG, ERROR
+      value: "INFO"  # eg. DEBUG, ERROR
 
 transformer:
   replicaCount: 1
