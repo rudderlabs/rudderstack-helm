@@ -69,7 +69,8 @@ backend:
 
   config:
     mountPath: "/etc/rudderstack"
-    # overrides for rudder-config.yaml
+    # -- rudder-server config overrides
+    # See [config parameters](https://docs.rudderlabs.com/administrators-guide/config-parameters) for more details
     overrides: {}
       # enableStats: false
       # Logger:

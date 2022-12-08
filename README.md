@@ -78,6 +78,7 @@ The following table lists the configurable parameters of the Rudderstack chart a
 | `backend.image.repository`          | Container image repository for the backend                                                          | `rudderlabs/rudder-server`     |
 | `backend.image.version`                 | Container image tag for the backend. [Available versions](https://hub.docker.com/r/rudderlabs/rudder-server/tags)                                                                 | `v0.1.6`                  |
 | `backend.image.pullPolicy`     | Container image pull policy for the backend image                                                   | `Always`           |
+| `backend.config.overrides` | object | `{}` | rudder-server config overrides See [config parameters](https://docs.rudderlabs.com/administrators-guide/config-parameters) for more details |
 | `transformer.image.repository`      | Container image repository for the transformer                                                      | `rudderlabs/transformer` |
 | `transformer.image.version`             | Container image tag for the transformer. [Available versions](https://hub.docker.com/r/rudderlabs/rudder-transformer/tags)                                                            | `v0.1.2`                  |
 | `transformer.image.pullPolicy` | Container image pull policy for the transformer image                                               | `Always`           |
@@ -93,7 +94,8 @@ $ helm install --name my-release \
 ```
 
 **Note:** Configuration specific to:
-- Backend can be edited in [rudder-config.yaml](https://docs.rudderlabs.com/administrators-guide/config-parameters).
+
+- Backend can be edited in [rudder-config.yaml](https://docs.rudderlabs.com/administrators-guide/config-parameters). or in values.yaml under `backend.config.overrides`.
 - PostgreSQL can be edited in `pg_hba.conf`, `postgresql.conf`
 
 ## Components
