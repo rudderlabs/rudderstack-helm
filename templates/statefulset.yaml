@@ -1,3 +1,5 @@
+{{- $baseConfig := .Files.Get "rudder-config.yaml" | fromYaml -}}
+{{- $rudderConfig := mustMergeOverwrite $baseConfig .Values.backend.config.overrides -}}
 apiVersion: {{ include "statefulset.apiVersion" . }}
 kind: StatefulSet
 metadata:
@@ -18,7 +20,7 @@ spec:
         {{- if not .Values.rudderWorkspaceTokenExistingSecret }}
         checksum/rudder-workspace-token: {{ include (print $.Template.BasePath "/secret-rudder-token.yaml") . | sha256sum }}
         {{- end }}
-        checksum/rudder-config: {{ .Files.Get "rudder-config.yaml" | sha256sum }}
+        checksum/rudder-config: {{ $rudderConfig | toYaml | sha256sum }}
         checksum/rudder-bigquery-credentials: {{ .Files.Get "bigquery-credentials.json" | sha256sum }}
     spec:
     {{- with .Values.global.imagePullSecrets }}
