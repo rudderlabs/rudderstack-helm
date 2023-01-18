@@ -8,7 +8,7 @@
 
 # Please uncomment below lines and fill values accordingly.
 # Please enter api token obtained from rudder dashboard below or specify existing secret, that contains rudderWorkspaceToken key
-# rudderWorkspaceToken:
+rudderWorkspaceToken: replaceMe
 # rudderWorkspaceTokenExistingSecret:
 
 gcpCredentialSecret:
@@ -45,7 +45,7 @@ backend:
     annotations:
       ## Refer https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer for more annotations
       service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
-      ## For enabling https on aws, 
+      ## For enabling https on aws,
       ## uncomment below line with acm managed certificate arn and change port value below to 443
       # service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:123456789012:certificate/12345678-1234-1234-1234-123456789012
     type: LoadBalancer
@@ -69,6 +69,12 @@ backend:
 
   config:
     mountPath: "/etc/rudderstack"
+    # -- rudder-server config overrides
+    # See [config parameters](https://docs.rudderlabs.com/administrators-guide/config-parameters) for more details
+    overrides: {}
+      # enableStats: false
+      # Logger:
+      #  consoleJsonFormat: true
 
   extraEnvVars:
     - name: CONFIG_BACKEND_URL
@@ -85,7 +91,7 @@ backend:
     - name: RUDDER_TMPDIR
       value: "/data/rudderstack"
     - name: JOBS_BACKUP_STORAGE_PROVIDER
-      value: "S3" # object storage provider to store backups eg. S3, GCS, AZURE_BLOB, MINIO
+      value: "S3"  # object storage provider to store backups eg. S3, GCS, AZURE_BLOB, MINIO
     - name: JOBS_BACKUP_BUCKET
       value: "Add your bucket name to store backups of incoming events"
     - name: JOB_STATUS_BACKUP_BUCKET
@@ -93,7 +99,7 @@ backend:
     - name: GOOGLE_APPLICATION_CREDENTIALS
       value: "/etc/rudderstack/google-application-credentials.json"
     - name: LOG_LEVEL
-      value: "INFO" # eg. DEBUG, ERROR
+      value: "INFO"  # eg. DEBUG, ERROR
 
 transformer:
   replicaCount: 1

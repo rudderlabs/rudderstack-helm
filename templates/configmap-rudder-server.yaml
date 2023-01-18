@@ -1,3 +1,6 @@
+---
+{{- $baseConfig := .Files.Get "rudder-config.yaml" | fromYaml -}}
+{{- $mergedConfig := mustMergeOverwrite $baseConfig .Values.backend.config.overrides -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,7 +10,7 @@ metadata:
     release: {{ .Release.Name | quote }}
 data:
   config.yaml: |-
-{{ .Files.Get "rudder-config.yaml" | indent 4}}
+    {{ $mergedConfig | toYaml | nindent 4 }}
   google-application-credentials.json: |-
 {{.Files.Get "rudder-google-application-credentials.json" | indent 4}}
   {{- if .Values.backend.controlPlaneJSON}}
