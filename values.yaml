@@ -106,7 +106,7 @@ transformer:
   service:
     port: 9090
   image:
-    repository: rudderlabs/rudder-transformer
+    repository: rudderstack/rudder-transformer
     version: latest
     pullPolicy: Always
   resources:
