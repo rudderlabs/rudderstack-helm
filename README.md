@@ -79,8 +79,8 @@ The following table lists the configurable parameters of the Rudderstack chart a
 | `backend.image.version`                 | Container image tag for the backend. [Available versions](https://hub.docker.com/r/rudderlabs/rudder-server/tags)                                                                 | `v0.1.6`                  |
 | `backend.image.pullPolicy`     | Container image pull policy for the backend image                                                   | `Always`           |
 | `backend.config.overrides` | object | `{}` | rudder-server config overrides See [config parameters](https://docs.rudderlabs.com/administrators-guide/config-parameters) for more details |
-| `transformer.image.repository`      | Container image repository for the transformer                                                      | `rudderlabs/transformer` |
-| `transformer.image.version`             | Container image tag for the transformer. [Available versions](https://hub.docker.com/r/rudderlabs/rudder-transformer/tags)                                                            | `v0.1.2`                  |
+| `transformer.image.repository`      | Container image repository for the transformer                                                      | `rudderstack/transformer` |
+| `transformer.image.version`             | Container image tag for the transformer. [Available versions](https://hub.docker.com/r/rudderstack/rudder-transformer/tags)                                                            | `latest`                  |
 | `transformer.image.pullPolicy` | Container image pull policy for the transformer image                                               | `Always`           |
 | `backend.extraEnvVars`              | Extra environments variables to be used by the backend in the deployments                           | `Refer values.yaml file` |
 | `backend.controlPlaneJSON`                   | If `true`, backend will read config from the workspaceConfig.json file  |  `false` |
