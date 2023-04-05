@@ -28,3 +28,50 @@ spec:
                 port:
                   number: {{ .Values.backend.service.port }}
 {{- end -}}
+--- # Add if block around all of the resources below, should only be templated if ingressroute is enabled
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "rudderstack.fullname" . }}
+  labels:
+  {{- include "rudderstack.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - kind: Rule
+    match: Host(`rudderstack.{{ .Values.dns.domain }}`) # This url should be templated from values
+    services:
+    - kind: Service
+      name: {{ include "rudderstack.fullname" . }}
+      namespace: rudderstack # Do we need namespace here? Can we template it in that case, should be same as helm install namespace location
+      port: {{ .Values.backend.service.port }}
+  tls:
+    secretName: {{ include "rudderstack.fullname" . }}-cert
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "rudderstack.fullname" . }}-tls-cert
+  labels:
+  {{- include "rudderstack.labels" . | nindent 4 }}
+spec:
+  secretName: {{ include "rudderstack.fullname" . }}-tls-cert
+  dnsNames:
+    - rudderstack.{{ .Values.dns.domain }} # This url should be templated from values
+  issuerRef:
+    name: letsencrypt-dns01
+    kind: ClusterIssuer
+    group: cert-manager.io
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ include "rudderstack.fullname" . }}-dns
+  labels:
+  {{- include "rudderstack.labels" . | nindent 4 }}
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: rudderstack.{{ .Values.dns.domain }} # This url should be templated from values 
+spec:
+  type: ExternalName
+  externalName: edge.{{ .Values.google.clusterName }}.{{ .Values.dns.domain }} # This url should can be either taken from
