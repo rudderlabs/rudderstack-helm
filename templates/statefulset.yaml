@@ -23,6 +23,7 @@ spec:
         checksum/rudder-config: {{ $rudderConfig | toYaml | sha256sum }}
         checksum/rudder-bigquery-credentials: {{ .Files.Get "bigquery-credentials.json" | sha256sum }}
     spec:
+      serviceAccountName: {{ include "rudderstack.serviceAccountName" . }}
     {{- with .Values.global.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
