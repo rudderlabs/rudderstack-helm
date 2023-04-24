@@ -97,10 +97,10 @@ Return the appropriate apiVersion for statefulset.
 Create the name of the service account to use
 */}}
 {{- define "rudderstack.serviceAccountName" -}}
-{{- if .Values.rbac.create }}
-{{- default (include "rudderstack.fullname" .) .Values.rbac.serviceAccount.name }}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "rudderstack.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
-{{- default "default" .Values.rbac.serviceAccount.name }}
+{{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
 
