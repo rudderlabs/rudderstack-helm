@@ -93,6 +93,17 @@ Return the appropriate apiVersion for statefulset.
 {{- end -}}
 {{- end -}}
 
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "rudderstack.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "rudderstack.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
 {{- define "statsd.enabled" -}}
 {{- if .Values.telegraf_sidecar -}}
 {{- if .Values.telegraf_sidecar.enabled }}

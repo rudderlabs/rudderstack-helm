@@ -84,6 +84,9 @@ The following table lists the configurable parameters of the Rudderstack chart a
 | `transformer.image.pullPolicy` | Container image pull policy for the transformer image                                               | `Always`           |
 | `backend.extraEnvVars`              | Extra environments variables to be used by the backend in the deployments                           | `Refer values.yaml file` |
 | `backend.controlPlaneJSON`                   | If `true`, backend will read config from the workspaceConfig.json file  |  `false` |
+| `serviceAccount.create` | Enable service account creation. | `true` |
+| `serviceAccount.annotations` | Annotations to be added to the service account. | `{}` |
+| `serviceAccount.name` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template. | `""` |
 
 Each of these parameters can be changed in `values.yaml`. Or specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example:
 
