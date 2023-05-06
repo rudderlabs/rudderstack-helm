@@ -2,7 +2,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-
 # Deployment specific values for rudderstack.
 # Following values must be filled in for the deployment to succeed
 
@@ -56,6 +55,9 @@ backend:
       memory: 2560Mi
     limits:
       memory: 5120Mi
+  serviceAccount:
+    create: false
+    name: default
 
   nodeSelector: {}
 
