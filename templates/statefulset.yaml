@@ -6,6 +6,9 @@ metadata:
   name: {{ include "rudderstack.fullname" . }}
   labels:
     {{- include "rudderstack.labels" . | nindent 4 }}
+    {{- with .Values.backend.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   serviceName: {{ include "rudderstack.fullname" . }}
   replicas: {{ .Values.global.backendReplicaCount }}
@@ -15,13 +18,22 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "rudderstack.selectorLabels" . | nindent 8 }}
+        {{- include "rudderstack.labels" . | nindent 8 }}
+        {{- with .Values.backend.labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.backend.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       annotations:
         {{- if not .Values.rudderWorkspaceTokenExistingSecret }}
         checksum/rudder-workspace-token: {{ include (print $.Template.BasePath "/secret-rudder-token.yaml") . | sha256sum }}
         {{- end }}
         checksum/rudder-config: {{ $rudderConfig | toYaml | sha256sum }}
         checksum/rudder-bigquery-credentials: {{ .Files.Get "bigquery-credentials.json" | sha256sum }}
+        {{- with .Values.backend.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
       serviceAccountName: {{ include "rudderstack.serviceAccountName" . }}
     {{- with .Values.global.imagePullSecrets }}
@@ -147,8 +159,8 @@ spec:
         storageClassName: {{ .Values.global.storageClass }}
         accessModes:
         {{- range .Values.backend.persistence.accessModes }}
-         - {{ . | quote }}
+          - {{ . | quote }}
         {{- end }}
         resources:
           requests:
-           storage: {{ .Values.backend.persistence.size | quote }}
+            storage: {{ .Values.backend.persistence.size | quote }}

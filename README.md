@@ -73,11 +73,19 @@ The following table lists the configurable parameters of the Rudderstack chart a
 
 | Parameter                           | Description                                                                                         | Default                  |
 | ----------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------ |
+| `commonLabels` | Labels to apply to all resources | `{}` |
 | `rudderWorkspaceToken`              | Workspace token from the dashboard                                                                  | `-`                      |
 | `rudderWorkspaceTokenExistingSecret`    | Secret with workspace token (overrides `rudderWorkspaceToken`)                                                                 | `-`                      |
 | `backend.image.repository`          | Container image repository for the backend                                                          | `rudderlabs/rudder-server`     |
 | `backend.image.version`                 | Container image tag for the backend. [Available versions](https://hub.docker.com/r/rudderlabs/rudder-server/tags)                                                                 | `v0.1.6`                  |
 | `backend.image.pullPolicy`     | Container image pull policy for the backend image                                                   | `Always`           |
+| `backend.ingress.annotations` | Annotations to be added to backend ingress | `{}` |
+| `backend.ingress.labels` | Labels to be added to backend ingress | `{}` |
+| `backend.service.annotations` | Annotations to be added to backend service | `{"service.beta.kubernetes.io/aws-load-balancer-backend-protocol":"http"}` |
+| `backend.service.labels` | Labels to be added to backend service | `{}` |
+| `backend.podLabels` | Labels to add to the backend pod container metadata | `{}` |
+| `backend.podAnnotations` | Annotations to be added to backend pods | `{}` |
+| `backend.labels` | Labels to be added to the controller StatefulSet and other resources that do not have option to specify labels | `{}` |
 | `backend.config.overrides` | object | `{}` | rudder-server config overrides See [config parameters](https://docs.rudderlabs.com/administrators-guide/config-parameters) for more details |
 | `transformer.image.repository`      | Container image repository for the transformer                                                      | `rudderstack/transformer` |
 | `transformer.image.version`             | Container image tag for the transformer. [Available versions](https://hub.docker.com/r/rudderstack/rudder-transformer/tags)                                                            | `latest`                  |

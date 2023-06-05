@@ -5,6 +5,12 @@ metadata:
   name: {{ include "rudderstack.fullname" . }}
   labels:
     {{- include "rudderstack.labels" . | nindent 4 }}
+  {{- with .Values.backend.labels }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.backend.ingress.labels }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   annotations:
   {{- with .Values.backend.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
