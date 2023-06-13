@@ -95,6 +95,7 @@ The following table lists the configurable parameters of the Rudderstack chart a
 | `serviceAccount.create` | Enable service account creation. | `true` |
 | `serviceAccount.annotations` | Annotations to be added to the service account. | `{}` |
 | `serviceAccount.name` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template. | `""` |
+| `transformer.commonLabels` | Labels to apply to all transformer resources | `{}` |
 
 Each of these parameters can be changed in `values.yaml`. Or specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example:
 
