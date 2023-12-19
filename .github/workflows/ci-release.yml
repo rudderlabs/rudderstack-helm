@@ -3,7 +3,7 @@ name: CI Release Charts
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   release:
