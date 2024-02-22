@@ -8,6 +8,7 @@ metadata:
   labels:
     app: {{ include "backend.name" . }}
     release: {{ .Release.Name | quote }}
+    {{- include "rudderstack.labels" . | nindent 4 }}
 data:
   config.yaml: |-
     {{ $mergedConfig | toYaml | nindent 4 }}
