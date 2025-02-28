@@ -1,4 +1,4 @@
-{{- if .Values.telegraf_sidecar.enabled}}
+{{- if .Values.telegraf_sidecar.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -52,6 +52,4 @@ data:
         {{- end }}
         ]
     service_address = ":8125"
-
-
-{{- end}}
+{{- end }}

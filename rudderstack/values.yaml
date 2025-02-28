@@ -21,8 +21,6 @@ gcpCredentialSecret:
   mountPath: /etc/gcp
 
 global:
-  # backendReplicaCount decides the replica count for rudder backend and postgresql containers
-  backendReplicaCount: 1
   imagePullSecrets: []
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
@@ -33,10 +31,11 @@ global:
   storageClass: ""
 
 backend:
+  replicaCount: 1
   image:
     repository: rudderlabs/rudder-server
-    version: latest
-    pullPolicy: Always
+    tag: 1.43.1
+    pullPolicy: IfNotPresent
   controlPlaneJSON: false
   ingress:
     enabled: false
@@ -52,13 +51,13 @@ backend:
     # -- Annotations to be added to backend service
     annotations:
       ## Refer https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer for more annotations
-      service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+      # service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
       ## For enabling https on aws,
       ## uncomment below line with acm managed certificate arn and change port value below to 443
       # service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:123456789012:certificate/12345678-1234-1234-1234-123456789012
     # -- Labels to be added to backend service
     labels: {}
-    type: LoadBalancer
+    type: ClusterIP
     port: 80
     targetPort: 8080
   resources:
@@ -128,8 +127,8 @@ transformer:
     port: 9090
   image:
     repository: rudderstack/rudder-transformer
-    version: latest
-    pullPolicy: Always
+    tag: 1.91.4
+    pullPolicy: IfNotPresent
   resources:
     requests:
       memory: 256Mi
@@ -166,7 +165,7 @@ postgresql:
       memory: 4096Mi
 
 telegraf_sidecar:
-  enabled: true
+  enabled: false
   name: telegraf
   version: 1.5.0
   nameOverride: "rudderstack"

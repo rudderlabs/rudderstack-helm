@@ -1,17 +1,16 @@
 {{- $baseConfig := .Files.Get "rudder-config.yaml" | fromYaml -}}
 {{- $rudderConfig := mustMergeOverwrite $baseConfig .Values.backend.config.overrides -}}
-apiVersion: {{ include "statefulset.apiVersion" . }}
+---
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ include "rudderstack.fullname" . }}
   labels:
     {{- include "rudderstack.labels" . | nindent 4 }}
-    {{- with .Values.backend.labels }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
+    {{- toYaml .Values.backend.labels | nindent 4 }}
 spec:
   serviceName: {{ include "rudderstack.fullname" . }}
-  replicas: {{ .Values.global.backendReplicaCount }}
+  replicas: {{ .Values.backend.replicaCount }}
   selector:
     matchLabels:
       {{- include "rudderstack.selectorLabels" . | nindent 6 }}
@@ -20,10 +19,10 @@ spec:
       labels:
         {{- include "rudderstack.labels" . | nindent 8 }}
         {{- with .Values.backend.labels }}
-        {{- toYaml . | nindent 8 }}
+          {{- toYaml . | nindent 8 }}
         {{- end }}
         {{- with .Values.backend.podLabels }}
-        {{- toYaml . | nindent 8 }}
+          {{- toYaml . | nindent 8 }}
         {{- end }}
       annotations:
         {{- if not .Values.rudderWorkspaceTokenExistingSecret }}
@@ -32,7 +31,7 @@ spec:
         checksum/rudder-config: {{ $rudderConfig | toYaml | sha256sum }}
         checksum/rudder-bigquery-credentials: {{ .Files.Get "bigquery-credentials.json" | sha256sum }}
         {{- with .Values.backend.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
+          {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
       serviceAccountName: {{ include "rudderstack.serviceAccountName" . }}
@@ -45,13 +44,11 @@ spec:
             defaultMode: 420
             name: {{ include "backend.fullname" . }}-config
           name: backend-config-volume
-        {{- if .Values.telegraf_sidecar }}
-        {{- if .Values.telegraf_sidecar.enabled}}
+        {{- if .Values.telegraf_sidecar.enabled }}
         - name: telegraf
           configMap:
             defaultMode: 420
             name: {{ include "telegraf-sidecar.fullname" . }}-config
-        {{- end }}
         {{- end }}
         {{- if .Values.gcpCredentialSecret.enabled }}
         - name: google-application-credentials
@@ -60,9 +57,11 @@ spec:
             secretName: {{ include "rudderstack.fullname" . }}-gcp
         {{- end }}
       containers:
-      - name: {{ include "backend.name" . }}
-        image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.version }}"
-        imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+      - name: backend
+        {{- with .Values.backend.image }}
+        image: "{{ .repository }}:{{ .tag | default $.Chart.AppVersion }}"
+        imagePullPolicy: {{ .pullPolicy }}
+        {{- end }}
         volumeMounts:
         - mountPath: {{ .Values.backend.config.mountPath }}
           name: backend-config-volume
@@ -75,11 +74,13 @@ spec:
         ports:
           - name: backend
             containerPort: {{ .Values.backend.service.targetPort }}
-        livenessProbe:
+        startupProbe:
           httpGet:
             path: /health
             port: {{ .Values.backend.service.targetPort }}
-          initialDelaySeconds: 120
+          initialDelaySeconds: 10
+          periodSeconds: 3
+          failureThreshold: 70
         readinessProbe:
           httpGet:
             path: /health
@@ -124,10 +125,12 @@ spec:
               fieldRef:
                 fieldPath: metadata.name
           - name: KUBE_NAMESPACE
-            value: {{ .Release.Namespace }}
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
         command: ["/docker-entrypoint.sh"]
         args: ["/bin/sh","-c","/wait-for $JOBS_DB_HOST:$(JOBS_DB_PORT) {{ if (include "statsd.enabled" .) -}} -- /wait-for -u {{ include "statsd.url" .}} {{- end }} -- /rudder-server"]
-        {{- if .Values.telegraf_sidecar.enabled}}
+      {{- if .Values.telegraf_sidecar.enabled }}
       - name: {{ include "telegraf-sidecar.name" .}}
         image: "{{ .Values.telegraf_sidecar.image.repo }}:{{ .Values.telegraf_sidecar.image.tag }}"
         imagePullPolicy: {{ default "" .Values.telegraf_sidecar.image.pullPolicy | quote }}
@@ -143,7 +146,7 @@ spec:
         volumeMounts:
           - name: telegraf
             mountPath: {{.Values.telegraf_sidecar.config.mountPath}}
-  {{- end}}
+      {{- end }}
 
 
   volumeClaimTemplates:

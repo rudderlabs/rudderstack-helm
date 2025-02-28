@@ -23,7 +23,7 @@ spec:
       containers:
       - name: transformer
         {{- with .Values.transformer.image }}
-        image: "{{ .repository }}:{{ .version }}"
+        image: "{{ .repository }}:{{ .tag }}"
         imagePullPolicy: {{ .pullPolicy }}
         {{- end }}
         ports:
