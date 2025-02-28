@@ -123,6 +123,8 @@ spec:
         envFrom:
           - secretRef:
               name: {{ include "rudderstack.fullname" . }}-jobs
+          - configMapRef:
+              name: {{ include "rudderstack.fullname" . }}-config
         env:
           {{- if .Values.backend.extraEnvVars }}
             {{- .Values.backend.extraEnvVars | toYaml | nindent 10 }}
@@ -132,14 +134,6 @@ spec:
               secretKeyRef:
                 name: {{ template "rudderstack.rudderWorkspaceTokenSecretName" . }}
                 key: rudderWorkspaceToken
-            {{- if .Values.backend.controlPlaneJSON }}
-          - name: RSERVER_BACKEND_CONFIG_CONFIG_FROM_FILE
-            value: "{{ .Values.backend.controlPlaneJSON }}"
-          - name:  RSERVER_BACKEND_CONFIG_CONFIG_JSONPATH
-            value: "{{ .Values.backend.config.mountPath }}/workspaceConfig.json"
-            {{- end}}
-          - name: DEST_TRANSFORM_URL
-            value: "http://{{ include "rudderstack.fullname" . }}-transformer:{{ .Values.transformer.service.port }}"
           - name: COMPUTE_DB_HOST_IN_K8S
             value: "true"
           - name: INSTANCE_ID

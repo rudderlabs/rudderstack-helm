@@ -14,6 +14,7 @@ data:
 {{- end }}
   CONFIG_BACKEND_URL: https://api.rudderlabs.com
   CONFIG_PATH: /etc/rudderstack/config.yaml
+  DEST_TRANSFORM_URL: "http://{{ include "rudderstack.fullname" . }}-transformer:{{ .Values.transformer.service.port }}"
   BUGSNAG_KEY: 3669852453c688bb50a0a2d27bf0ee58
   RUDDER_TMPDIR: /data/rudderstack
   LOG_LEVEL: {{ .Values.backend.config.logLevel | upper | quote }}
