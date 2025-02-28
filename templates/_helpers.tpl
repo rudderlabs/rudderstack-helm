@@ -54,27 +54,21 @@ app.kubernetes.io/name: {{ include "rudderstack.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 
+{{- define "rudderstack.backend.selectorLabels" -}}
+{{- include "rudderstack.selectorLabels" . }}
+app.kubernetes.io/component: backend
+{{- end -}}
+
+{{- define "rudderstack.transformer.selectorLabels" -}}
+{{- include "rudderstack.selectorLabels" . }}
+app.kubernetes.io/component: transformer
+{{- end -}}
+
 {{/*
 Return secret name to be used based on provided values.
 */}}
 {{- define "rudderstack.rudderWorkspaceTokenSecretName" -}}
 {{- default (include "rudderstack.fullname" .) .Values.rudderWorkspaceTokenExistingSecret -}}
-{{- end -}}
-
-{{- define "transformer.name" -}}
-{{- printf "%s-%s" (include "rudderstack.name" .) "transformer" -}}
-{{- end -}}
-
-{{- define "transformer.fullname" -}}
-{{- printf "%s-%s" (include "rudderstack.fullname" .) "transformer" -}}
-{{- end -}}
-
-{{- define "backend.name" -}}
-{{- printf "%s-%s" (include "rudderstack.name" .) "backend" -}}
-{{- end -}}
-
-{{- define "backend.fullname" -}}
-{{- printf "%s-%s" (include "rudderstack.fullname" .) "backend" -}}
 {{- end -}}
 
 {{- define "telegraf-sidecar.name" -}}
@@ -83,17 +77,6 @@ Return secret name to be used based on provided values.
 
 {{- define "telegraf-sidecar.fullname" -}}
 {{- printf "%s-%s" (include "rudderstack.fullname" .) "telegraf-sidecar" -}}
-{{- end -}}
-
-{{/*
-Return the appropriate apiVersion for statefulset.
-*/}}
-{{- define "statefulset.apiVersion" -}}
-{{- if semverCompare "<1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-{{- print "apps/v1beta2" -}}
-{{- else -}}
-{{- print "apps/v1" -}}
-{{- end -}}
 {{- end -}}
 
 {{/*
@@ -129,12 +112,7 @@ Create the name of the service account to use
 {{- end -}}
 {{- end -}}
 
-
 {{/*telegraf helper functions */}}
-
-{{- define "telegraf.chart" -}}
-{{- printf "%s-%s" .Values.telegraf_sidecar.name .Values.telegraf_sidecar.version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
 
 {{- define "telegraf-sidecar.outputs" -}}
 {{- range $outputIdx, $configObject := . -}}

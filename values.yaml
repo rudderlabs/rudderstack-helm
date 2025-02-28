@@ -8,8 +8,8 @@
 
 # Please uncomment below lines and fill values accordingly.
 # Please enter api token obtained from rudder dashboard below or specify existing secret, that contains rudderWorkspaceToken key
-rudderWorkspaceToken: replaceMe
-# rudderWorkspaceTokenExistingSecret:
+rudderWorkspaceToken: ""
+rudderWorkspaceTokenExistingSecret: null
 
 # -- Labels to apply to all resources
 commonLabels: {}
@@ -18,47 +18,40 @@ commonLabels: {}
 gcpCredentialSecret:
   enabled: false
   jsonKeyFile: ""
-  mountPath: /etc/gcp
 
 global:
-  # backendReplicaCount decides the replica count for rudder backend and postgresql containers
-  backendReplicaCount: 1
   imagePullSecrets: []
-  ## If defined, storageClassName: <storageClass>
-  ## If set to "-", storageClassName: "", which disables dynamic provisioning
-  ## If undefined (the default) or set to null, no storageClassName spec is
-  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-  ##   GKE, AWS & OpenStack)
-  ##
-  storageClass: ""
+
+serviceAccount:
+  create: false
+  annotations: {}
 
 backend:
+  replicaCount: 1
   image:
     repository: rudderlabs/rudder-server
-    version: latest
-    pullPolicy: Always
+    tag: 1.43.1
+    pullPolicy: IfNotPresent
   controlPlaneJSON: false
   ingress:
     enabled: false
-    tls: false
-    # -- Annotations to be added to backend ingress
     annotations: {}
-    # -- Labels to be added to backend ingress
-    labels: {}
-    hostname: "rudderstack.local"
-    # optional override for tls secret name
-    # secretName: rudderstack-tls
+    className: ""
+    hostname: ""
+    tls: false
+    # -- Optional, Certificate Secret name
+    secretName: ""
   service:
     # -- Annotations to be added to backend service
     annotations:
       ## Refer https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer for more annotations
-      service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+      # service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
       ## For enabling https on aws,
       ## uncomment below line with acm managed certificate arn and change port value below to 443
       # service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:123456789012:certificate/12345678-1234-1234-1234-123456789012
     # -- Labels to be added to backend service
     labels: {}
-    type: LoadBalancer
+    type: ClusterIP
     port: 80
     targetPort: 8080
   resources:
@@ -66,6 +59,9 @@ backend:
       memory: 2560Mi
     limits:
       memory: 5120Mi
+
+  # -- Labels to be added to the controller StatefulSet and other resources that do not have option to specify labels
+  labels: {}
   # -- Labels to add to the backend pod container metadata
   podLabels: {}
   # -- Annotations to be added to backend pods
@@ -74,15 +70,25 @@ backend:
   nodeSelector: {}
 
   persistence:
-    mountPath: /data/rudderstack
-    accessModes:
-      - ReadWriteOnce
+    enabled: true
+    accessModes: [ReadWriteOnce]
     size: 36Gi
+    storageClass: ""
     annotations: {}
   tolerations: []
 
   config:
-    mountPath: "/etc/rudderstack"
+    # eg. INFO, DEBUG, ERROR
+    logLevel: INFO
+    backup:
+      enabled: false
+      # -- object storage provider to store backups eg. S3, GCS, AZURE_BLOB, MINIO
+      provider: S3
+      bucket: ""
+      statusBucket: ""
+      aws:
+        accessKey: ""
+        secretKey: ""
     # -- rudder-server config overrides
     # See [config parameters](https://docs.rudderlabs.com/administrators-guide/config-parameters) for more details
     overrides: {}
@@ -90,94 +96,57 @@ backend:
       # Logger:
       #  consoleJsonFormat: true
 
-  extraEnvVars:
-    - name: CONFIG_BACKEND_URL
-      value: "https://api.rudderlabs.com"
-    - name: CONFIG_PATH
-      value: "/etc/rudderstack/config.yaml"
-    # These credentials are used for backing up successfully processed events
-    - name: AWS_ACCESS_KEY_ID
-      value: "Add your aws key id here"
-    - name: AWS_SECRET_ACCESS_KEY
-      value: "Add your aws access secret here"
-    - name: BUGSNAG_KEY
-      value: "3669852453c688bb50a0a2d27bf0ee58"
-    - name: RUDDER_TMPDIR
-      value: "/data/rudderstack"
-    - name: JOBS_BACKUP_STORAGE_PROVIDER
-      value: "S3"  # object storage provider to store backups eg. S3, GCS, AZURE_BLOB, MINIO
-    - name: JOBS_BACKUP_BUCKET
-      value: "Add your bucket name to store backups of incoming events"
-    - name: JOB_STATUS_BACKUP_BUCKET
-      value: "Add your bucket name to store backups of status of incoming events"
-    - name: GOOGLE_APPLICATION_CREDENTIALS
-      value: "/etc/rudderstack/google-application-credentials.json"
-    - name: LOG_LEVEL
-      value: "INFO"  # eg. DEBUG, ERROR
-      # DO NOT REMOVE - Mandatory env for Shopify
-    - name: RSERVER_GATEWAY_WEBHOOK_SOURCE_LIST_FOR_PARSING_PARAMS
-      value: Shopify
-
-  # -- Labels to be added to the controller StatefulSet and other resources that do not have option to specify labels
-  labels: {}
+  extraEnvVars: []
+    # - name: LOG_LEVEL
+    #  value: "INFO"
 
 transformer:
   replicaCount: 1
   service:
+    type: ClusterIP
     port: 9090
   image:
     repository: rudderstack/rudder-transformer
-    version: latest
-    pullPolicy: Always
+    tag: 1.91.4
+    pullPolicy: IfNotPresent
   resources:
     requests:
       memory: 256Mi
     limits:
       memory: 768Mi
-
-serviceAccount:
-  # -- Enable service account creation.
-  create: false
-
-  # -- Annotations to be added to the service account.
-  annotations: {}
-
-  # -- The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template.
-  name: ""
+  extraEnvVars:
+    - name: CONFIG_BACKEND_URL
+      value: "https://api.rudderlabs.com"
+    - name: ENABLE_FUNCTIONS
+      value: "true"
 
 postgresql:
-  nameOverride: "rudderstack-postgresql"
-  postgresqlUsername: rudder
-  postgresqlPassword: password
-  postgresqlDatabase: jobsdb
-  postgresqlRunAsUser: 70
-  imagePullPolicy: IfNotPresent
-  image:
-    repository: postgres
-    tag: "11-alpine"
-    pullPolicy: IfNotPresent
-  persistence:
-    size: 100Gi
-  replication:
-    enabled: false
-  service:
-    type: "ClusterIP"
-    port: 5432
-  resources:
-    requests:
-      memory: 2048Mi
-    limits:
-      memory: 4096Mi
-
-telegraf_sidecar:
   enabled: true
-  name: telegraf
-  version: 1.5.0
-  nameOverride: "rudderstack"
+  architecture: standalone
+  auth:
+    enablePostgresUser: false
+    username: rudder
+    password: password
+    database: jobsdb
+  primary:
+    service:
+      port: 5432
+    persistence:
+      enabled: true
+      size: 100Gi
+    resources:
+      requests:
+        memory: 2Gi
+      limits:
+        memory: 4Gi
+
+# https://www.rudderstack.com/docs/user-guides/administrators-guide/monitoring-and-metrics/
+# The backend uses statsd client to log stats.
+telegraf_sidecar:
+  enabled: false
   image:
-    repo: "telegraf"
-    tag: "1.12-alpine"
+    repository: telegraf
+    tag: 1.12-alpine
     pullPolicy: IfNotPresent
   resources:
     requests:
@@ -187,18 +156,13 @@ telegraf_sidecar:
       memory: 128Mi
       cpu: 100m
   config:
-    mountPath: /etc/telegraf
     agent:
       interval: "10s"
     outputs:
       - influxdb:
           urls: []
-          #            - "http://influxdb.monitoring.svc:8086"
+          # - "http://influxdb.monitoring.svc:8086"
           database: "telegraf"
-    statsd_percentiles:
-      - 50
-      - 90
-      - 95
-      - 99
+    statsd_percentiles: [50, 90, 95, 99]
 
 affinity: {}

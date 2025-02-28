@@ -4,22 +4,24 @@ metadata:
   name: {{ include "rudderstack.fullname" . }}
   labels:
     {{- include "rudderstack.labels" . | nindent 4 }}
-  {{- with .Values.backend.labels }}
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-  {{- with .Values.backend.service.labels }}
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- with .Values.backend.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- with .Values.backend.service }}
+    {{- with .labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
   annotations:
-  {{- with .Values.backend.service.annotations }}
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- with .annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
-  type: {{ .Values.backend.service.type }}
+  type: {{ .type }}
   ports:
-    - port: {{ .Values.backend.service.port }}
-      targetPort: {{ .Values.backend.service.targetPort }}
+    - port: {{ .port }}
+      targetPort: {{ .targetPort }}
       protocol: TCP
       name: http
+{{- end }}
   selector:
-    {{- include "rudderstack.selectorLabels" . | nindent 4 }}
+    {{- include "rudderstack.backend.selectorLabels" . | nindent 4 }}

@@ -1,20 +1,36 @@
+{{- $baseConfig := .Files.Get "files/rudder-config.yaml" | fromYaml }}
+{{- $mergedConfig := mustMergeOverwrite $baseConfig .Values.backend.config.overrides }}
 ---
-{{- $baseConfig := .Files.Get "rudder-config.yaml" | fromYaml -}}
-{{- $mergedConfig := mustMergeOverwrite $baseConfig .Values.backend.config.overrides -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "backend.fullname" . }}-config
+  name: {{ include "rudderstack.fullname" . }}-config
   labels:
-    app: {{ include "backend.name" . }}
-    release: {{ .Release.Name | quote }}
     {{- include "rudderstack.labels" . | nindent 4 }}
 data:
-  config.yaml: |-
-    {{ $mergedConfig | toYaml | nindent 4 }}
-  google-application-credentials.json: |-
-{{.Files.Get "rudder-google-application-credentials.json" | indent 4}}
-  {{- if .Values.backend.controlPlaneJSON}}
-  workspaceConfig.json: |-
-{{.Files.Get "workspaceConfig.json" | indent 4}}
-  {{- end }}
+{{- if .Values.backend.controlPlaneJSON }}
+  RSERVER_BACKEND_CONFIG_CONFIG_FROM_FILE: {{ .Values.backend.controlPlaneJSON | quote }}
+  RSERVER_BACKEND_CONFIG_CONFIG_JSONPATH: /etc/rudderstack/workspaceConfig.json
+{{- end }}
+  CONFIG_BACKEND_URL: https://api.rudderlabs.com
+  CONFIG_PATH: /etc/rudderstack/config.yaml
+  DEST_TRANSFORM_URL: "http://{{ include "rudderstack.fullname" . }}-transformer:{{ .Values.transformer.service.port }}"
+  BUGSNAG_KEY: 3669852453c688bb50a0a2d27bf0ee58
+  RUDDER_TMPDIR: /data/rudderstack
+  LOG_LEVEL: {{ .Values.backend.config.logLevel | upper | quote }}
+{{- if .Values.gcpCredentialSecret.enabled }}
+  GOOGLE_APPLICATION_CREDENTIALS: /etc/gcp/google-application-credentials.json
+{{- else }}
+  GOOGLE_APPLICATION_CREDENTIALS: /etc/rudderstack/google-application-credentials.json
+{{- end }}
+  # DO NOT REMOVE - Mandatory env for Shopify
+  RSERVER_GATEWAY_WEBHOOK_SOURCE_LIST_FOR_PARSING_PARAMS: Shopify
+{{- if .Values.backend.config.backup.enabled }}
+{{- with .Values.backend.config.backup }}
+  JOBS_BACKUP_STORAGE_PROVIDER: {{ .provider | quote }}
+  JOBS_BACKUP_BUCKET: {{ .bucket | quote }}
+  JOB_STATUS_BACKUP_BUCKET: {{ .statusBucket | quote }}
+  AWS_ACCESS_KEY_ID: {{ .aws.accessKey | quote }}
+  AWS_SECRET_ACCESS_KEY: {{ .aws.secretKey | quote }}
+{{- end }}
+{{- end }}
