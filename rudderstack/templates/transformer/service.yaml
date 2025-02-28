@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "rudderstack.fullname" . }}
+  name: {{ include "rudderstack.fullname" . }}-transformer
   labels:
     {{- include "rudderstack.labels" . | nindent 4 }}
     app.kubernetes.io/component: transformer
