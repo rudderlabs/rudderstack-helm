@@ -142,28 +142,24 @@ transformer:
       value: "true"
 
 postgresql:
-  nameOverride: "rudderstack-postgresql"
-  postgresqlUsername: rudder
-  postgresqlPassword: password
-  postgresqlDatabase: jobsdb
-  postgresqlRunAsUser: 70
-  imagePullPolicy: IfNotPresent
-  image:
-    repository: postgres
-    tag: "11-alpine"
-    pullPolicy: IfNotPresent
-  persistence:
-    size: 100Gi
-  replication:
-    enabled: false
-  service:
-    type: "ClusterIP"
-    port: 5432
-  resources:
-    requests:
-      memory: 2048Mi
-    limits:
-      memory: 4096Mi
+  enabled: true
+  architecture: standalone
+  auth:
+    enablePostgresUser: false
+    username: rudder
+    password: password
+    database: jobsdb
+  primary:
+    service:
+      port: 5432
+    persistence:
+      enabled: true
+      size: 100Gi
+    resources:
+      requests:
+        memory: 2Gi
+      limits:
+        memory: 4Gi
 
 telegraf_sidecar:
   enabled: false

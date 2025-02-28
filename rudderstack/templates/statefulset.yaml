@@ -72,6 +72,9 @@ spec:
             port: http
         resources:
           {{- toYaml .Values.backend.resources | nindent 10 }}
+        envFrom:
+          - secretRef:
+              name: {{ include "rudderstack.fullname" . }}-jobs
         env:
           {{- if .Values.backend.extraEnvVars }}
             {{- .Values.backend.extraEnvVars | toYaml | nindent 10 }}
@@ -91,20 +94,6 @@ spec:
             value: "http://{{ include "rudderstack.fullname" . }}-transformer:{{ .Values.transformer.service.port }}"
           - name: COMPUTE_DB_HOST_IN_K8S
             value: "true"
-          - name: POSTGRES_POD_NAME
-            value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}"
-          - name: POSTGRES_HEADLESS_SVC
-            value: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}-headless"
-          - name: JOBS_DB_HOST
-            value: "This is expected to be set by docker entrypoint script"
-          - name: JOBS_DB_USER
-            value: "{{ .Values.postgresql.postgresqlUsername }}"
-          - name: JOBS_DB_PORT
-            value: "{{ .Values.postgresql.service.port }}"
-          - name: JOBS_DB_DB_NAME
-            value: "{{ .Values.postgresql.postgresqlDatabase }}"
-          - name: JOBS_DB_PASSWORD
-            value: "{{ .Values.postgresql.postgresqlPassword }}"
           - name: INSTANCE_ID
             valueFrom:
               fieldRef:
@@ -139,7 +128,7 @@ spec:
       volumes:
         - configMap:
             defaultMode: 420
-            name: {{ include "rudderstack.fullname" . }}-backend-config
+            name: {{ include "rudderstack.fullname" . }}-config
           name: backend-config-volume
         {{- if .Values.telegraf_sidecar.enabled }}
         - name: telegraf
