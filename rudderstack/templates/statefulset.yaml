@@ -1,4 +1,4 @@
-{{- $baseConfig := .Files.Get "rudder-config.yaml" | fromYaml -}}
+{{- $baseConfig := .Files.Get "filesrudder-config.yaml" | fromYaml -}}
 {{- $rudderConfig := mustMergeOverwrite $baseConfig .Values.backend.config.overrides -}}
 ---
 apiVersion: apps/v1
@@ -31,7 +31,7 @@ spec:
         checksum/rudder-workspace-token: {{ include (print $.Template.BasePath "/secret-rudder-token.yaml") . | sha256sum }}
         {{- end }}
         checksum/rudder-config: {{ $rudderConfig | toYaml | sha256sum }}
-        checksum/rudder-bigquery-credentials: {{ .Files.Get "bigquery-credentials.json" | sha256sum }}
+        checksum/rudder-bigquery-credentials: {{ .Files.Get "files/bigquery-credentials.json" | sha256sum }}
         {{- with .Values.backend.podAnnotations }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
