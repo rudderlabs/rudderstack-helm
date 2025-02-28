@@ -171,8 +171,8 @@ telegraf_sidecar:
   version: 1.5.0
   nameOverride: "rudderstack"
   image:
-    repo: "telegraf"
-    tag: "1.12-alpine"
+    repository: telegraf
+    tag: 1.12-alpine
     pullPolicy: IfNotPresent
   resources:
     requests:
@@ -182,7 +182,6 @@ telegraf_sidecar:
       memory: 128Mi
       cpu: 100m
   config:
-    mountPath: /etc/telegraf
     agent:
       interval: "10s"
     outputs:

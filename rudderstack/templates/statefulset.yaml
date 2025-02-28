@@ -41,7 +41,6 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-
       containers:
       - name: backend
         {{- with .Values.backend.image }}
@@ -58,19 +57,19 @@ spec:
           name: google-application-credentials
         {{- end }}
         ports:
-          - name: backend
+          - name: http
             containerPort: {{ .Values.backend.service.targetPort }}
         startupProbe:
           httpGet:
             path: /health
-            port: {{ .Values.backend.service.targetPort }}
+            port: http
           initialDelaySeconds: 10
           periodSeconds: 3
           failureThreshold: 70
         readinessProbe:
           httpGet:
             path: /health
-            port: {{ .Values.backend.service.targetPort }}
+            port: http
         resources:
           {{- toYaml .Values.backend.resources | nindent 10 }}
         env:
@@ -117,21 +116,25 @@ spec:
         command: ["/docker-entrypoint.sh"]
         args: ["/bin/sh","-c","/wait-for $JOBS_DB_HOST:$(JOBS_DB_PORT) {{ if (include "statsd.enabled" .) -}} -- /wait-for -u {{ include "statsd.url" .}} {{- end }} -- /rudder-server"]
       {{- if .Values.telegraf_sidecar.enabled }}
-      - name: {{ include "telegraf-sidecar.name" .}}
-        image: "{{ .Values.telegraf_sidecar.image.repo }}:{{ .Values.telegraf_sidecar.image.tag }}"
-        imagePullPolicy: {{ default "" .Values.telegraf_sidecar.image.pullPolicy | quote }}
+      - name: telegraf
+        {{- with .Values.telegraf_sidecar.image }}
+        image: "{{ .repository }}:{{ .tag }}"
+        imagePullPolicy: {{ .pullPolicy }}
+        {{- end }}
         env:
           - name: KUBE_NAMESPACE
-            value: {{ .Release.Namespace }}
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
         command: ["telegraf"]
-        args: ["--config", "{{.Values.telegraf_sidecar.config.mountPath}}/telegraf.conf"]
+        args: ["--config", "/etc/telegraf/telegraf.conf"]
         {{- if .Values.telegraf_sidecar.resources }}
         resources:
-        {{- toYaml .Values.telegraf_sidecar.resources | nindent 10 }}
+          {{- toYaml .Values.telegraf_sidecar.resources | nindent 10 }}
         {{- end }}
         volumeMounts:
           - name: telegraf
-            mountPath: {{.Values.telegraf_sidecar.config.mountPath}}
+            mountPath: /etc/telegraf
       {{- end }}
       volumes:
         - configMap:
