@@ -8,7 +8,7 @@
 
 # Please uncomment below lines and fill values accordingly.
 # Please enter api token obtained from rudder dashboard below or specify existing secret, that contains rudderWorkspaceToken key
-rudderWorkspaceToken: ""
+rudderWorkspaceToken: "replace-me"
 rudderWorkspaceTokenExistingSecret: null
 
 # -- Labels to apply to all resources
@@ -18,7 +18,6 @@ commonLabels: {}
 gcpCredentialSecret:
   enabled: false
   jsonKeyFile: ""
-  mountPath: /etc/gcp
 
 global:
   imagePullSecrets: []
@@ -29,6 +28,10 @@ global:
   ##   GKE, AWS & OpenStack)
   ##
   storageClass: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
 
 backend:
   replicaCount: 1
@@ -65,6 +68,9 @@ backend:
       memory: 2560Mi
     limits:
       memory: 5120Mi
+
+  # -- Labels to be added to the controller StatefulSet and other resources that do not have option to specify labels
+  labels: {}
   # -- Labels to add to the backend pod container metadata
   podLabels: {}
   # -- Annotations to be added to backend pods
@@ -73,15 +79,13 @@ backend:
   nodeSelector: {}
 
   persistence:
-    mountPath: /data/rudderstack
-    accessModes:
-      - ReadWriteOnce
+    enabled: true
+    accessModes: [ReadWriteOnce]
     size: 36Gi
     annotations: {}
   tolerations: []
 
   config:
-    mountPath: "/etc/rudderstack"
     # -- rudder-server config overrides
     # See [config parameters](https://docs.rudderlabs.com/administrators-guide/config-parameters) for more details
     overrides: {}
@@ -116,9 +120,6 @@ backend:
       # DO NOT REMOVE - Mandatory env for Shopify
     - name: RSERVER_GATEWAY_WEBHOOK_SOURCE_LIST_FOR_PARSING_PARAMS
       value: Shopify
-
-  # -- Labels to be added to the controller StatefulSet and other resources that do not have option to specify labels
-  labels: {}
 
 transformer:
   replicaCount: 1

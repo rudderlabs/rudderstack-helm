@@ -15,5 +15,4 @@ spec:
       name: http
 {{- end }}
   selector:
-    {{- include "rudderstack.selectorLabels" . | nindent 4 }}
-    app.kubernetes.io/component: transformer
+    {{- include "rudderstack.transformer.selectorLabels" . | nindent 4 }}

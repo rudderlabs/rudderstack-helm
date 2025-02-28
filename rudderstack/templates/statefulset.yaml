@@ -7,17 +7,19 @@ metadata:
   name: {{ include "rudderstack.fullname" . }}
   labels:
     {{- include "rudderstack.labels" . | nindent 4 }}
-    {{- toYaml .Values.backend.labels | nindent 4 }}
+    {{- with .Values.backend.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   serviceName: {{ include "rudderstack.fullname" . }}
   replicas: {{ .Values.backend.replicaCount }}
   selector:
     matchLabels:
-      {{- include "rudderstack.selectorLabels" . | nindent 6 }}
+      {{- include "rudderstack.backend.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "rudderstack.labels" . | nindent 8 }}
+        {{- include "rudderstack.backend.selectorLabels" . | nindent 8 }}
         {{- with .Values.backend.labels }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -39,23 +41,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      volumes:
-        - configMap:
-            defaultMode: 420
-            name: {{ include "backend.fullname" . }}-config
-          name: backend-config-volume
-        {{- if .Values.telegraf_sidecar.enabled }}
-        - name: telegraf
-          configMap:
-            defaultMode: 420
-            name: {{ include "telegraf-sidecar.fullname" . }}-config
-        {{- end }}
-        {{- if .Values.gcpCredentialSecret.enabled }}
-        - name: google-application-credentials
-          secret:
-            defaultMode: 420
-            secretName: {{ include "rudderstack.fullname" . }}-gcp
-        {{- end }}
+
       containers:
       - name: backend
         {{- with .Values.backend.image }}
@@ -63,12 +49,12 @@ spec:
         imagePullPolicy: {{ .pullPolicy }}
         {{- end }}
         volumeMounts:
-        - mountPath: {{ .Values.backend.config.mountPath }}
+        - mountPath: /etc/rudderstack
           name: backend-config-volume
-        - mountPath: {{ .Values.backend.persistence.mountPath }}
-          name: {{ include "backend.name" . }}-data
+        - mountPath: /data/rudderstack
+          name: data
         {{- if .Values.gcpCredentialSecret.enabled }}
-        - mountPath: {{ .Values.gcpCredentialSecret.mountPath }}
+        - mountPath: /etc/gcp
           name: google-application-credentials
         {{- end }}
         ports:
@@ -103,7 +89,7 @@ spec:
             value: "{{ .Values.backend.config.mountPath }}/workspaceConfig.json"
             {{- end}}
           - name: DEST_TRANSFORM_URL
-            value: "http://{{ include "transformer.fullname" . }}:{{ .Values.transformer.service.port}}"
+            value: "http://{{ include "rudderstack.fullname" . }}-transformer:{{ .Values.transformer.service.port }}"
           - name: COMPUTE_DB_HOST_IN_K8S
             value: "true"
           - name: POSTGRES_POD_NAME
@@ -147,17 +133,34 @@ spec:
           - name: telegraf
             mountPath: {{.Values.telegraf_sidecar.config.mountPath}}
       {{- end }}
-
-
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: {{ include "rudderstack.fullname" . }}-backend-config
+          name: backend-config-volume
+        {{- if .Values.telegraf_sidecar.enabled }}
+        - name: telegraf
+          configMap:
+            defaultMode: 420
+            name: {{ include "telegraf-sidecar.fullname" . }}-config
+        {{- end }}
+        {{- if .Values.gcpCredentialSecret.enabled }}
+        - name: google-application-credentials
+          secret:
+            defaultMode: 420
+            secretName: {{ include "rudderstack.fullname" . }}-gcp
+        {{- end }}
+  {{- if not .Values.backend.persistence.enabled }}
+        - name: data
+          emptyDir: {}
+  {{- else }}
   volumeClaimTemplates:
     - metadata:
-        name: {{ include "backend.name" . }}-data
-    {{- with .Values.backend.persistence.annotations }}
-      annotations:
-      {{- range $key, $value := . }}
-        {{ $key }}: {{ $value }}
-      {{- end }}
-    {{- end }}
+        name: data
+        {{- with .Values.backend.persistence.annotations }}
+        annotations:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
       spec:
         storageClassName: {{ .Values.global.storageClass }}
         accessModes:
@@ -167,3 +170,4 @@ spec:
         resources:
           requests:
             storage: {{ .Values.backend.persistence.size | quote }}
+  {{- end }}

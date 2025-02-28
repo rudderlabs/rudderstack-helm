@@ -8,13 +8,11 @@ spec:
   replicas: {{ .Values.transformer.replicaCount }}
   selector:
     matchLabels:
-      {{- include "rudderstack.selectorLabels" . | nindent 6 }}
-      app.kubernetes.io/component: transformer
+      {{- include "rudderstack.transformer.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "rudderstack.selectorLabels" . | nindent 8 }}
-        app.kubernetes.io/component: transformer
+        {{- include "rudderstack.transformer.selectorLabels" . | nindent 8 }}
     spec:
     {{- with .Values.global.imagePullSecrets }}
       imagePullSecrets:
