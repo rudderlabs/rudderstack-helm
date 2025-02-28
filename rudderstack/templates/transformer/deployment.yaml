@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rudderstack.fullname" . }}-transformer
+  labels:
+    {{- include "rudderstack.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.transformer.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "rudderstack.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: transformer
+  template:
+    metadata:
+      labels:
+        {{- include "rudderstack.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: transformer
+    spec:
+    {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      containers:
+      - name: transformer
+        {{- with .Values.transformer.image }}
+        image: "{{ .repository }}:{{ .version }}"
+        imagePullPolicy: {{ .pullPolicy }}
+        {{- end }}
+        ports:
+          - name: http
+            containerPort: {{ .Values.transformer.service.port }}
+            protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+        resources:
+          {{- toYaml .Values.transformer.resources | nindent 10 }}
+        env:
+          {{- if .Values.transformer.extraEnvVars }}
+            {{- .Values.transformer.extraEnvVars | toYaml | nindent 8 }}
+          {{- end }}
+      {{- with .Values.transformer.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.transformer.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.transformer.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

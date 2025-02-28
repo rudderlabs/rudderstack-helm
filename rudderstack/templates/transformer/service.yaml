@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "rudderstack.fullname" . }}
+  labels:
+    {{- include "rudderstack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: transformer
+spec:
+{{- with .Values.transformer.service }}
+  type: {{ .type }}
+  ports:
+    - port: {{ .port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+{{- end }}
+  selector:
+    {{- include "rudderstack.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: transformer
