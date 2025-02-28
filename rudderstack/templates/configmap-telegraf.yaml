@@ -36,17 +36,6 @@ data:
     allowed_pending_messages = 10000
     metric_separator = "_"
     percentile_limit = 100
-    percentiles = [
-        {{- $numOut := len .Values.telegraf_sidecar.config.statsd_percentiles }}
-        {{- $numOut = sub $numOut 1 }}
-        {{- range $b, $val := .Values.telegraf_sidecar.config.statsd_percentiles }}
-        {{- $i := int64 $b }}
-        {{- if eq $i $numOut }}
-        {{ $val  }}
-        {{- else }}
-        {{ $val }},
-        {{- end }}
-        {{- end }}
-        ]
+    percentiles = [ {{- .Values.telegraf_sidecar.config.statsd_percentiles | join ", " -}} ]
     service_address = ":8125"
 {{- end }}

@@ -1,4 +1,7 @@
 {{- $baseConfig := .Files.Get "rudder-config.yaml" | fromYaml }}
+{{- if not .Values.telegraf_sidecar.enabled }}
+  {{- $_ := set .Values.backend.config.overrides "enableStats" false }}
+{{- end }}
 {{- $mergedConfig := mustMergeOverwrite $baseConfig .Values.backend.config.overrides }}
 ---
 apiVersion: v1

@@ -140,11 +140,10 @@ postgresql:
       limits:
         memory: 4Gi
 
+# https://www.rudderstack.com/docs/user-guides/administrators-guide/monitoring-and-metrics/
+# The backend uses statsd client to log stats.
 telegraf_sidecar:
   enabled: false
-  name: telegraf
-  version: 1.5.0
-  nameOverride: "rudderstack"
   image:
     repository: telegraf
     tag: 1.12-alpine
@@ -164,10 +163,6 @@ telegraf_sidecar:
           urls: []
           #            - "http://influxdb.monitoring.svc:8086"
           database: "telegraf"
-    statsd_percentiles:
-      - 50
-      - 90
-      - 95
-      - 99
+    statsd_percentiles: [50, 90, 95, 99]
 
 affinity: {}

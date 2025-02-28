@@ -114,10 +114,6 @@ Create the name of the service account to use
 
 {{/*telegraf helper functions */}}
 
-{{- define "telegraf.chart" -}}
-{{- printf "%s-%s" .Values.telegraf_sidecar.name .Values.telegraf_sidecar.version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
 {{- define "telegraf-sidecar.outputs" -}}
 {{- range $outputIdx, $configObject := . -}}
     {{- range $output, $config := . -}}
