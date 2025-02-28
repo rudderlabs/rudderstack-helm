@@ -50,6 +50,8 @@ spec:
         envFrom:
           - secretRef:
               name: {{ include "rudderstack.fullname" . }}-jobs
+          - configMapRef:
+              name: {{ include "rudderstack.fullname" . }}-config
         env:
           - name: COMPUTE_DB_HOST_IN_K8S
             value: "true"
@@ -74,7 +76,7 @@ spec:
         {{- end }}
         volumeMounts:
         - mountPath: /etc/rudderstack
-          name: backend-config-volume
+          name: config-files
         - mountPath: /data/rudderstack
           name: data
         {{- if .Values.gcpCredentialSecret.enabled }}
@@ -88,7 +90,7 @@ spec:
           httpGet:
             path: /health
             port: http
-          initialDelaySeconds: 10
+          initialDelaySeconds: 5
           periodSeconds: 3
           failureThreshold: 70
         readinessProbe:
@@ -153,8 +155,8 @@ spec:
       volumes:
         - configMap:
             defaultMode: 420
-            name: {{ include "rudderstack.fullname" . }}-config
-          name: backend-config-volume
+            name: {{ include "rudderstack.fullname" . }}-config-files
+          name: config-files
         {{- if .Values.telegraf_sidecar.enabled }}
         - name: telegraf
           configMap:

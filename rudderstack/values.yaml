@@ -30,7 +30,7 @@ global:
   storageClass: ""
 
 serviceAccount:
-  create: true
+  create: false
   annotations: {}
 
 backend:
@@ -86,6 +86,17 @@ backend:
   tolerations: []
 
   config:
+    # eg. INFO, DEBUG, ERROR
+    logLevel: INFO
+    backup:
+      enabled: false
+      # -- object storage provider to store backups eg. S3, GCS, AZURE_BLOB, MINIO
+      provider: S3
+      bucket: ""
+      statusBucket: ""
+      aws:
+        accessKey: ""
+        secretKey: ""
     # -- rudder-server config overrides
     # See [config parameters](https://docs.rudderlabs.com/administrators-guide/config-parameters) for more details
     overrides: {}
@@ -93,33 +104,9 @@ backend:
       # Logger:
       #  consoleJsonFormat: true
 
-  extraEnvVars:
-    - name: CONFIG_BACKEND_URL
-      value: "https://api.rudderlabs.com"
-    - name: CONFIG_PATH
-      value: "/etc/rudderstack/config.yaml"
-    # These credentials are used for backing up successfully processed events
-    - name: AWS_ACCESS_KEY_ID
-      value: "Add your aws key id here"
-    - name: AWS_SECRET_ACCESS_KEY
-      value: "Add your aws access secret here"
-    - name: BUGSNAG_KEY
-      value: "3669852453c688bb50a0a2d27bf0ee58"
-    - name: RUDDER_TMPDIR
-      value: "/data/rudderstack"
-    - name: JOBS_BACKUP_STORAGE_PROVIDER
-      value: "S3"  # object storage provider to store backups eg. S3, GCS, AZURE_BLOB, MINIO
-    - name: JOBS_BACKUP_BUCKET
-      value: "Add your bucket name to store backups of incoming events"
-    - name: JOB_STATUS_BACKUP_BUCKET
-      value: "Add your bucket name to store backups of status of incoming events"
-    - name: GOOGLE_APPLICATION_CREDENTIALS
-      value: "/etc/rudderstack/google-application-credentials.json"
-    - name: LOG_LEVEL
-      value: "INFO"  # eg. DEBUG, ERROR
-      # DO NOT REMOVE - Mandatory env for Shopify
-    - name: RSERVER_GATEWAY_WEBHOOK_SOURCE_LIST_FOR_PARSING_PARAMS
-      value: Shopify
+  extraEnvVars: []
+    # - name: LOG_LEVEL
+    #  value: "INFO"
 
 transformer:
   replicaCount: 1
