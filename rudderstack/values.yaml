@@ -35,14 +35,12 @@ backend:
   controlPlaneJSON: false
   ingress:
     enabled: false
-    tls: false
-    # -- Annotations to be added to backend ingress
     annotations: {}
-    # -- Labels to be added to backend ingress
-    labels: {}
-    hostname: "rudderstack.local"
-    # optional override for tls secret name
-    # secretName: rudderstack-tls
+    className: ""
+    hostname: ""
+    tls: false
+    # -- Optional, Certificate Secret name
+    secretName: ""
   service:
     # -- Annotations to be added to backend service
     annotations:
