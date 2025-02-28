@@ -1,0 +1,184 @@
+{{- $baseConfig := .Files.Get "filesrudder-config.yaml" | fromYaml -}}
+{{- $rudderConfig := mustMergeOverwrite $baseConfig .Values.backend.config.overrides -}}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "rudderstack.fullname" . }}
+  labels:
+    {{- include "rudderstack.labels" . | nindent 4 }}
+    {{- with .Values.backend.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  serviceName: {{ include "rudderstack.fullname" . }}
+  replicas: {{ .Values.backend.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "rudderstack.backend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "rudderstack.backend.selectorLabels" . | nindent 8 }}
+        {{- with .Values.backend.labels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.backend.podLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{- if not .Values.rudderWorkspaceTokenExistingSecret }}
+        checksum/rudder-workspace-token: {{ include (print $.Template.BasePath "/secret-rudder-token.yaml") . | sha256sum }}
+        {{- end }}
+        checksum/rudder-config: {{ $rudderConfig | toYaml | sha256sum }}
+        checksum/rudder-bigquery-credentials: {{ .Files.Get "files/bigquery-credentials.json" | sha256sum }}
+        {{- with .Values.backend.podAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ include "rudderstack.serviceAccountName" . }}
+    {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      initContainers:
+      - name: wait-for-postgres
+        {{- with .Values.backend.image }}
+        image: "{{ .repository }}:{{ .tag | default $.Chart.AppVersion }}"
+        imagePullPolicy: {{ .pullPolicy }}
+        {{- end }}
+        envFrom:
+          - secretRef:
+              name: {{ include "rudderstack.fullname" . }}-jobs
+          - configMapRef:
+              name: {{ include "rudderstack.fullname" . }}-config
+        env:
+          - name: COMPUTE_DB_HOST_IN_K8S
+            value: "true"
+          - name: INSTANCE_ID
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: KUBE_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        command: ["/docker-entrypoint.sh"]
+        args: ["/bin/sh","-c","/wait-for $JOBS_DB_HOST:$(JOBS_DB_PORT)"]
+        resources:
+          {{- toYaml .Values.backend.resources | nindent 10 }}
+      {{- if .Values.telegraf_sidecar.enabled }}
+      - name: statsd
+        restartPolicy: Always
+        {{- with .Values.telegraf_sidecar.image }}
+        image: "{{ .repository }}:{{ .tag }}"
+        imagePullPolicy: {{ .pullPolicy }}
+        {{- end }}
+        env:
+          - name: KUBE_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        command: ["telegraf"]
+        args: ["--config", "/etc/telegraf/telegraf.conf"]
+        {{- if .Values.telegraf_sidecar.resources }}
+        resources:
+          {{- toYaml .Values.telegraf_sidecar.resources | nindent 10 }}
+        {{- end }}
+        volumeMounts:
+          - name: telegraf
+            mountPath: /etc/telegraf
+      {{- end }}
+      containers:
+      - name: backend
+        {{- with .Values.backend.image }}
+        image: "{{ .repository }}:{{ .tag | default $.Chart.AppVersion }}"
+        imagePullPolicy: {{ .pullPolicy }}
+        {{- end }}
+        volumeMounts:
+        - mountPath: /etc/rudderstack
+          name: config-files
+        - mountPath: /data/rudderstack
+          name: data
+        {{- if .Values.gcpCredentialSecret.enabled }}
+        - mountPath: /etc/gcp
+          name: google-application-credentials
+        {{- end }}
+        ports:
+          - name: http
+            containerPort: {{ .Values.backend.service.targetPort }}
+        startupProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 3
+          failureThreshold: 70
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+        resources:
+          {{- toYaml .Values.backend.resources | nindent 10 }}
+        envFrom:
+          - secretRef:
+              name: {{ include "rudderstack.fullname" . }}-jobs
+          - configMapRef:
+              name: {{ include "rudderstack.fullname" . }}-config
+        env:
+          {{- if .Values.backend.extraEnvVars }}
+            {{- .Values.backend.extraEnvVars | toYaml | nindent 10 }}
+          {{- end }}
+          - name: CONFIG_BACKEND_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "rudderstack.rudderWorkspaceTokenSecretName" . }}
+                key: rudderWorkspaceToken
+          - name: COMPUTE_DB_HOST_IN_K8S
+            value: "true"
+          - name: INSTANCE_ID
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: KUBE_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: {{ include "rudderstack.fullname" . }}-config-files
+          name: config-files
+        {{- if .Values.telegraf_sidecar.enabled }}
+        - name: telegraf
+          configMap:
+            defaultMode: 420
+            name: {{ include "telegraf-sidecar.fullname" . }}-config
+        {{- end }}
+        {{- if .Values.gcpCredentialSecret.enabled }}
+        - name: google-application-credentials
+          secret:
+            defaultMode: 420
+            secretName: {{ include "rudderstack.fullname" . }}-gcp
+        {{- end }}
+  {{- if not .Values.backend.persistence.enabled }}
+        - name: data
+          emptyDir: {}
+  {{- else }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        {{- with .Values.backend.persistence.annotations }}
+        annotations:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      spec:
+        storageClassName: {{ .Values.backend.persistence.storageClass }}
+        accessModes:
+        {{- range .Values.backend.persistence.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.backend.persistence.size | quote }}
+  {{- end }}

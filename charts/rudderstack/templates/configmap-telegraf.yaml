@@ -1,13 +1,10 @@
-{{- if .Values.telegraf_sidecar.enabled}}
+{{- if .Values.telegraf_sidecar.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "telegraf-sidecar.fullname" . }}-config
+  name: {{ include "rudderstack.fullname" . }}-telegraf-config
   labels:
-    app.kubernetes.io/name: {{ include "telegraf-sidecar.name" . }}
-    helm.sh/chart: {{ include "telegraf.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- include "rudderstack.labels" . | nindent 4 }}
 data:
   telegraf.conf: |+
     [global_tags]
@@ -18,7 +15,7 @@ data:
     flush_interval = "10s"
     flush_jitter = "0s"
     hostname = "$HOSTNAME"
-    interval = {{quote .Values.telegraf_sidecar.config.agent.interval}}
+    interval = {{ quote .Values.telegraf_sidecar.config.agent.interval }}
     logfile = ""
     metric_batch_size = 1000
     metric_buffer_limit = 10000
@@ -39,19 +36,6 @@ data:
     allowed_pending_messages = 10000
     metric_separator = "_"
     percentile_limit = 100
-    percentiles = [
-        {{- $numOut := len .Values.telegraf_sidecar.config.statsd_percentiles }}
-        {{- $numOut = sub $numOut 1 }}
-        {{- range $b, $val := .Values.telegraf_sidecar.config.statsd_percentiles }}
-        {{- $i := int64 $b }}
-        {{- if eq $i $numOut }}
-        {{ $val  }}
-        {{- else }}
-        {{ $val }},
-        {{- end }}
-        {{- end }}
-        ]
+    percentiles = [ {{- .Values.telegraf_sidecar.config.statsd_percentiles | join ", " -}} ]
     service_address = ":8125"
-
-
-{{- end}}
+{{- end }}

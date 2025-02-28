@@ -1,0 +1,23 @@
+{{- $baseConfig := .Files.Get "files/rudder-config.yaml" | fromYaml }}
+{{- if not .Values.telegraf_sidecar.enabled }}
+  {{- $_ := set .Values.backend.config.overrides "enableStats" false }}
+{{- end }}
+{{- $mergedConfig := mustMergeOverwrite $baseConfig .Values.backend.config.overrides }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "rudderstack.fullname" . }}-config-files
+  labels:
+    {{- include "rudderstack.labels" . | nindent 4 }}
+data:
+  config.yaml: |-
+    {{- $mergedConfig | toYaml | nindent 4 }}
+
+  google-application-credentials.json: |-
+    {{- .Files.Get "files/rudder-google-application-credentials.json" | nindent 4 }}
+
+{{- if .Values.backend.controlPlaneJSON }}
+  workspaceConfig.json: |-
+    {{- .Files.Get "files/workspaceConfig.json" | nindent 4 }}
+{{- end }}
