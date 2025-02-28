@@ -28,10 +28,13 @@ spec:
           - name: http
             containerPort: {{ .Values.transformer.service.port }}
             protocol: TCP
-        livenessProbe:
+        startupProbe:
           httpGet:
             path: /health
             port: http
+          initialDelaySeconds: 5
+          periodSeconds: 2
+          failureThreshold: 60
         readinessProbe:
           httpGet:
             path: /health
