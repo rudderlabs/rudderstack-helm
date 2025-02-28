@@ -181,7 +181,7 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
       spec:
-        storageClassName: {{ .Values.global.storageClass }}
+        storageClassName: {{ .Values.backend.persistence.storageClass }}
         accessModes:
         {{- range .Values.backend.persistence.accessModes }}
           - {{ . | quote }}
