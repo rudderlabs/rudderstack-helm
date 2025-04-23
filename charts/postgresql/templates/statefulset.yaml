@@ -16,7 +16,6 @@ metadata:
 {{- end }}
 spec:
   serviceName: {{ template "postgresql.fullname" . }}-headless
-  replicas: {{ .Values.global.backendReplicaCount }}
   updateStrategy:
     type: {{ .Values.updateStrategy.type }}
     {{- if (eq "Recreate" .Values.updateStrategy.type) }}

@@ -9,6 +9,10 @@ More information on RudderStack can be found [here](https://github.com/rudderlab
 ```bash
 $ git clone git@github.com:rudderlabs/rudderstack-helm.git
 $ cd rudderstack-helm/
+$ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+$ helm repo add kedacore https://kedacore.github.io/charts  
+$ helm repo update
+$ helm install keda kedacore/keda --namespace keda --create-namespace
 $ helm install my-release ./ --set rudderWorkspaceToken="<workspace token from the dashboard>"
 ```
 

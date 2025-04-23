@@ -8,7 +8,7 @@
 
 # Please uncomment below lines and fill values accordingly.
 # Please enter api token obtained from rudder dashboard below or specify existing secret, that contains rudderWorkspaceToken key
-rudderWorkspaceToken: replaceMe
+rudderWorkspaceToken: 2w7XXlXWAMrtrYCznLHkCZYhcaY
 # rudderWorkspaceTokenExistingSecret:
 
 # -- Labels to apply to all resources
@@ -22,7 +22,8 @@ gcpCredentialSecret:
 
 global:
   # backendReplicaCount decides the replica count for rudder backend and postgresql containers
-  backendReplicaCount: 1
+  backendReplicaMinCount: 1
+  backendReplicaMaxCount: 10
   imagePullSecrets: []
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning

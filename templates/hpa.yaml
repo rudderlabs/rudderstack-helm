@@ -1,0 +1,28 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: rudderstack-cpu-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: {{ include "rudderstack.fullname" . }}
+  minReplicas: {{ .Values.global.backendReplicaMinCount }}
+  maxReplicas: {{ .Values.global.backendReplicaMaxCount }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 300
+    scaleDown:
+      stabilizationWindowSeconds: 600
+
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
