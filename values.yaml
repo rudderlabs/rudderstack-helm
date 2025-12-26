@@ -155,7 +155,7 @@ postgresql:
   imagePullPolicy: IfNotPresent
   image:
     repository: postgres
-    tag: "11-alpine"
+    tag: "17-alpine"
     pullPolicy: IfNotPresent
   persistence:
     size: 100Gi
