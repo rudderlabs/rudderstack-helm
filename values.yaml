@@ -155,7 +155,7 @@ postgresql:
   imagePullPolicy: IfNotPresent
   image:
     repository: postgres
-    tag: "11-alpine"
+    tag: "17-alpine"
     pullPolicy: IfNotPresent
   persistence:
     size: 100Gi
@@ -173,11 +173,11 @@ postgresql:
 telegraf_sidecar:
   enabled: true
   name: telegraf
-  version: 1.5.0
+  version: 1.33.3
   nameOverride: "rudderstack"
   image:
     repo: "telegraf"
-    tag: "1.12-alpine"
+    tag: "1.33.3-alpine"
     pullPolicy: IfNotPresent
   resources:
     requests:
