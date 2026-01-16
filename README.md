@@ -110,6 +110,106 @@ $ helm install --name my-release \
 - Backend can be edited in [rudder-config.yaml](https://github.com/rudderlabs/rudderstack-helm/blob/master/rudder-config.yaml). or in values.yaml under `backend.config.overrides`.
 - PostgreSQL can be edited in `pg_hba.conf`, `postgresql.conf`
 
+## Using an External Database
+
+By default, this chart deploys a PostgreSQL database as a subchart. You can disable the internal PostgreSQL and connect to an external database instead.
+
+### Disable Internal PostgreSQL
+
+Set `postgresql.enabled` to `false` in your values:
+
+```yaml
+postgresql:
+  enabled: false
+```
+
+**Important:** When `postgresql.enabled` is `false`, you should remove or rename the `charts/postgresql` directory to prevent the internal PostgreSQL from being deployed. Alternatively, you can leave it - it will be deployed but not used (wasting resources).
+
+### Configure External Database
+
+You can configure the external database in two ways:
+
+#### Option 1: Direct Values
+
+Provide connection details directly in values:
+
+```yaml
+postgresql:
+  enabled: false
+
+externalDatabase:
+  host: "your-db-host.example.com"
+  port: 5432
+  database: "jobsdb"
+  user: "rudder"
+  password: "your-password"
+```
+
+#### Option 2: All Values from Kubernetes Secret (Recommended)
+
+For better security, you can provide all database connection details via a Kubernetes secret:
+
+```yaml
+postgresql:
+  enabled: false
+
+externalDatabase:
+  existingSecret: "my-db-secret"
+  existingSecretKeys:
+    host: "host"           # Key in secret containing database host
+    port: "port"           # Key in secret containing database port
+    database: "database"   # Key in secret containing database name
+    user: "user"           # Key in secret containing database user
+    password: "password"   # Key in secret containing database password
+```
+
+**Creating the secret:**
+
+```bash
+kubectl create secret generic my-db-secret \
+  --from-literal=host="your-db-host.example.com" \
+  --from-literal=port="5432" \
+  --from-literal=database="jobsdb" \
+  --from-literal=user="rudder" \
+  --from-literal=password="your-password"
+```
+
+**Note:** When `existingSecret` is set, all database values (host, port, database, user, password) will be read from the secret. The direct value fields (host, port, etc.) will be ignored.
+
+### Example: Install with External Database
+
+**Using direct values:**
+
+```bash
+$ helm install my-release ./ \
+  --set rudderWorkspaceToken="<workspace token>" \
+  --set postgresql.enabled=false \
+  --set externalDatabase.host="db.example.com" \
+  --set externalDatabase.database="jobsdb" \
+  --set externalDatabase.user="rudder" \
+  --set externalDatabase.password="secretpassword"
+```
+
+**Using a Kubernetes secret (recommended for production):**
+
+First, create the secret:
+```bash
+$ kubectl create secret generic my-db-secret \
+  --from-literal=host="db.example.com" \
+  --from-literal=port="5432" \
+  --from-literal=database="jobsdb" \
+  --from-literal=user="rudder" \
+  --from-literal=password="secretpassword"
+```
+
+Then install with the secret reference:
+```bash
+$ helm install my-release ./ \
+  --set rudderWorkspaceToken="<workspace token>" \
+  --set postgresql.enabled=false \
+  --set externalDatabase.existingSecret="my-db-secret"
+```
+
 ## Components
 
 Installing this Helm chart will deploy the following pods and containers in the configured cluster:
@@ -118,7 +218,7 @@ Installing this Helm chart will deploy the following pods and containers in the 
 - rudderstack-backend
 - rudderstack-telegraf-sidecar
 
-#### POD - {Release name}-rudderstack-postgresql-0 :
+#### POD - {Release name}-rudderstack-postgresql-0 (optional, when `postgresql.enabled=true`):
 - {Release name}-rudderstack-postgresql
 
 #### POD - {Release name}-rudderstack-transformer-xxxxxxxxxx-xxxxx:

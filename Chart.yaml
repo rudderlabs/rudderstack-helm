@@ -33,3 +33,7 @@ appVersion: 1.4.3
 #     import-values: # (optional)
 #       - ImportValues holds the mapping of source values to parent key to be imported. Each item can be a string or pair of child/parent sublist items.
 #     alias: (optional) Alias usable alias to be used for the chart. Useful when you have to add the same chart multiple times
+#
+# Note: The postgresql chart is included as a local subchart in charts/postgresql/
+# When postgresql.enabled is false, you should remove or rename the charts/postgresql
+# directory to prevent it from being deployed, or it will be deployed but not used.

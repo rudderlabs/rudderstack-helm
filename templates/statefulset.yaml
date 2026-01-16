@@ -103,6 +103,7 @@ spec:
             {{- end}}
           - name: DEST_TRANSFORM_URL
             value: "http://{{ include "transformer.fullname" . }}:{{ .Values.transformer.service.port}}"
+          {{- if .Values.postgresql.enabled }}
           - name: COMPUTE_DB_HOST_IN_K8S
             value: "true"
           - name: POSTGRES_POD_NAME
@@ -114,11 +115,55 @@ spec:
           - name: JOBS_DB_USER
             value: "{{ .Values.postgresql.postgresqlUsername }}"
           - name: JOBS_DB_PORT
-            value: "{{ .Values.postgresql.service.port }}"
+            value: "{{ .Values.postgresql.service.port | toString }}"
           - name: JOBS_DB_DB_NAME
             value: "{{ .Values.postgresql.postgresqlDatabase }}"
           - name: JOBS_DB_PASSWORD
             value: "{{ .Values.postgresql.postgresqlPassword }}"
+          {{- else }}
+          - name: COMPUTE_DB_HOST_IN_K8S
+            value: "false"
+          {{- if .Values.externalDatabase.existingSecret }}
+          # All database values from secret
+          - name: JOBS_DB_HOST
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.externalDatabase.existingSecret }}
+                key: {{ .Values.externalDatabase.existingSecretKeys.host }}
+          - name: JOBS_DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.externalDatabase.existingSecret }}
+                key: {{ .Values.externalDatabase.existingSecretKeys.user }}
+          - name: JOBS_DB_PORT
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.externalDatabase.existingSecret }}
+                key: {{ .Values.externalDatabase.existingSecretKeys.port }}
+          - name: JOBS_DB_DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.externalDatabase.existingSecret }}
+                key: {{ .Values.externalDatabase.existingSecretKeys.database }}
+          - name: JOBS_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.externalDatabase.existingSecret }}
+                key: {{ .Values.externalDatabase.existingSecretKeys.password }}
+          {{- else }}
+          # Database values from direct configuration
+          - name: JOBS_DB_HOST
+            value: "{{ required "externalDatabase.host is required when postgresql.enabled is false and existingSecret is not set" .Values.externalDatabase.host }}"
+          - name: JOBS_DB_USER
+            value: "{{ required "externalDatabase.user is required when postgresql.enabled is false and existingSecret is not set" .Values.externalDatabase.user }}"
+          - name: JOBS_DB_PORT
+            value: "{{ .Values.externalDatabase.port | toString }}"
+          - name: JOBS_DB_DB_NAME
+            value: "{{ required "externalDatabase.database is required when postgresql.enabled is false and existingSecret is not set" .Values.externalDatabase.database }}"
+          - name: JOBS_DB_PASSWORD
+            value: "{{ required "externalDatabase.password is required when postgresql.enabled is false and existingSecret is not set" .Values.externalDatabase.password }}"
+          {{- end }}
+          {{- end }}
           - name: INSTANCE_ID
             valueFrom:
               fieldRef:

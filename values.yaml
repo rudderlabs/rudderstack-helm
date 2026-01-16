@@ -146,7 +146,10 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template.
   name: ""
 
+# -- Enable internal PostgreSQL subchart deployment
+# When set to false, you must provide externalDatabase configuration
 postgresql:
+  enabled: true
   nameOverride: "rudderstack-postgresql"
   postgresqlUsername: rudder
   postgresqlPassword: password
@@ -169,6 +172,32 @@ postgresql:
       memory: 2048Mi
     limits:
       memory: 4096Mi
+
+# -- External database configuration
+# Use this when postgresql.enabled is false to connect to an external database
+externalDatabase:
+  # -- Host of the external database (or use existingSecret)
+  host: ""
+  # -- Port of the external database (or use existingSecret)
+  port: 5432
+  # -- Database name (or use existingSecret)
+  database: "jobsdb"
+  # -- Username for the external database (or use existingSecret)
+  user: "rudder"
+  # -- Password for the external database (or use existingSecret)
+  password: ""
+  # -- Existing secret containing database connection details
+  # If set, all database values (host, port, database, user, password) will be taken from this secret
+  # If not set, values will be taken from the fields above
+  existingSecret: ""
+  # -- Keys in the existing secret for each database field
+  # Only used when existingSecret is set
+  existingSecretKeys:
+    host: "host"
+    port: "port"
+    database: "database"
+    user: "user"
+    password: "password"
 
 telegraf_sidecar:
   enabled: true
