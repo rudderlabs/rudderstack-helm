@@ -1,4 +1,4 @@
-{{- if .Values.metrics.enabled }}
+{{- if and .Values.enabled .Values.metrics.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
